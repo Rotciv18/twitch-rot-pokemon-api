@@ -4,6 +4,9 @@ import {
   willLearnNewMoveEvolved,
 } from '../services/PokemonServices';
 import PokemonData from '../schemas/PokemonData';
+import { getUserPoints, addPoints } from '../services/StreamElements/Points';
+
+const LEVEL_UP_COST = 1000;
 
 class UserPokemonsController {
   async index(req, res) {
@@ -13,8 +16,6 @@ class UserPokemonsController {
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
-
-    console.log(pokemonId);
 
     const pokemon = await user.pokemons.id(pokemonId);
 
@@ -37,6 +38,11 @@ class UserPokemonsController {
   async levelup(req, res) {
     const { user } = req;
     const { pokemonId } = req.params;
+
+    const userPoints = await getUserPoints(user.username);
+    if (userPoints < LEVEL_UP_COST) {
+      return res.status(400).json({ message: 'Not enough points' });
+    }
 
     let evolvedTo;
     let learnedMove;
@@ -133,12 +139,17 @@ class UserPokemonsController {
     user.pokemons.id(pokemonId).level = newLevel;
     user.level += 1;
 
-    await user.save();
-    return res.json({
-      pokemon: user.pokemons.id(pokemonId),
-      learnedMove,
-      evolvedTo,
-    });
+    try {
+      await user.save();
+      await addPoints(user.username, -LEVEL_UP_COST);
+      return res.json({
+        pokemon: user.pokemons.id(pokemonId),
+        learnedMove,
+        evolvedTo,
+      });
+    } catch (error) {
+      return res.status(500).json(error);
+    }
   }
 }
 
