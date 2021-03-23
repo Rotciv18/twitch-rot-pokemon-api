@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import PokemonData from './PokemonData';
+import Move from './Move';
 
 const PokemonSchema = new mongoose.Schema(
   {
@@ -13,7 +14,7 @@ const PokemonSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    moves: Array,
+    moves: [Move.schema],
   },
   { timestamps: true }
 );

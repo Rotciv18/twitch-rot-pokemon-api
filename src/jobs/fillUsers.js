@@ -3,6 +3,7 @@ import PokemonData from '../app/schemas/PokemonData';
 import getStreamAvatarsUserData from '../helpers/getStreamAvatarsUserData';
 
 export default async () => {
+  console.log('EXECUTING FILLUSERS NOW:');
   const userData = await getStreamAvatarsUserData();
 
   const promises = Object.keys(userData).map(async (username) => {
@@ -33,4 +34,5 @@ export default async () => {
   });
 
   Promise.all(promises);
+  console.log('FINISHED FILLING USERS');
 };

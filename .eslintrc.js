@@ -17,5 +17,6 @@ module.exports = {
     camelcase: 'off',
     'no-unused-vars': ['error', { argsIgnorePattern: 'next' }],
     //    "arrow-body-style": [2, "always"]
+    'no-underscore-dangle': 'off',
   },
 };

@@ -1,3 +1,5 @@
-import fillUsersQueue from './src/queues/fillUsersPokemonQueue';
+import 'dotenv/config';
+import './src/database';
+import fillUsers from './src/jobs/fillUsers';
 
-fillUsersQueue.add();
+fillUsers();
