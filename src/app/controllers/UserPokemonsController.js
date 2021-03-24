@@ -4,6 +4,8 @@ import {
   willLearnNewMoveEvolved,
 } from '../services/PokemonServices';
 import PokemonData from '../schemas/PokemonData';
+import MoveData from '../schemas/MoveData';
+import Move from '../schemas/Move';
 import { getUserPoints, addPoints } from '../services/StreamElements/Points';
 
 const LEVEL_UP_COST = 1000;
@@ -149,6 +151,65 @@ class UserPokemonsController {
       });
     } catch (error) {
       return res.status(500).json(error);
+    }
+  }
+
+  async learnMove(req, res) {
+    // TODO: Checar e cobrar pontos de usuário
+
+    const { user } = req;
+    const { pokemonId } = req.params;
+    const { moveId } = req.query;
+    if (!moveId) {
+      return res.status(400).json({ message: 'Move ID is required' });
+    }
+
+    const moveData = await MoveData.findById(moveId);
+    const newMove = new Move({ name: moveData.moveName });
+    let learnedMove;
+
+    const pokemon = user.pokemons.id(pokemonId);
+    const canLearn = pokemon.pokemon_data.canLearn.find(
+      (move) => move === newMove.name
+    );
+    if (!canLearn) {
+      return res.status(400).json({ message: "Pokemon can't learn this move" });
+    }
+
+    if (pokemon.moves.length === 4) {
+      const { deleteMove } = req.query;
+      if (!deleteMove) {
+        return res.status(400).json({
+          message: 'Need to choose a move to delete',
+          newMove,
+          moves: pokemon.moves,
+        });
+      }
+
+      if (deleteMove !== 'none') {
+        const moveToDelete = pokemon.moves.find(
+          (move) => move.name === deleteMove
+        );
+        if (!moveToDelete) {
+          return res.status(400).json({ message: 'Move is not learned yet' });
+        }
+
+        // Aprende novo Move
+        user.pokemons.id(pokemonId).moves.id(moveToDelete._id).remove();
+        user.pokemons.id(pokemonId).moves.push(newMove);
+
+        learnedMove = newMove.name;
+      }
+    } else {
+      user.pokemons.id(pokemonId).moves.push(newMove);
+    }
+
+    try {
+      await user.save();
+
+      return res.json({ pokemon, learnedMove });
+    } catch (error) {
+      console.log(error);
     }
   }
 }

@@ -1,4 +1,4 @@
-import fillUsersQueue from './src/queues/fillUsersPokemonQueue';
+import fillUsersQueue from '../src/queues/fillUsersPokemonQueue';
 
 fillUsersQueue.add(
   {},

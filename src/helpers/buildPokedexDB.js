@@ -50,6 +50,21 @@ function getPokemonMoves(pokemon) {
   return moves;
 }
 
+function getCanLearnMoves(pokemon) {
+  const moves = [];
+  pokemon.moves.forEach((move) => {
+    move.version_group_details.every((vgd) => {
+      if (vgd.version_group.name === 'red-blue') {
+        moves.push(move.move.name);
+        return false;
+      }
+      return true;
+    });
+  });
+
+  return moves;
+}
+
 export default async () => {
   for (let i = 1; i <= lastPokemon; i++) {
     console.log(i);
@@ -59,7 +74,7 @@ export default async () => {
     );
     const pokemonSpecie = pokemonSpecieResponse.data;
 
-    const pokemonResponse = await axios.get(`${baseUrl}/pokemon/${i}`);
+    const pokemonResponse = await axios.get(`${baseUrl}/pokemon/${i}/`);
     const pokemon = pokemonResponse.data;
 
     const newPokemon = {
@@ -82,6 +97,7 @@ export default async () => {
     }
 
     newPokemon.moves = getPokemonMoves(pokemon);
+    newPokemon.canLearn = getCanLearnMoves(pokemon);
 
     await PokemonData.create(newPokemon);
   }

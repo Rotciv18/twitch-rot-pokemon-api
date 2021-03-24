@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import Move from './Move';
+import Evolution from './Evolution';
 
 const PokemonDataSchema = new mongoose.Schema(
   {
@@ -15,8 +17,13 @@ const PokemonDataSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    evolutions: Array,
-    moves: Array,
+    evolutions: [Evolution.schema],
+    moves: [Move.schema],
+    canLearn: {
+      type: Array,
+      required: true,
+      default: [],
+    },
   },
   { timestamps: true }
 );

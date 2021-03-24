@@ -9,6 +9,7 @@ const MoveSchema = new mongoose.Schema(
     learnAt: {
       type: Number,
       required: true,
+      default: 0,
     },
   },
   { timestamps: true }
