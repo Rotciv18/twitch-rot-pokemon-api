@@ -27,6 +27,7 @@ export default async () => {
             pokemon_data_id: pokemonData._id,
             name: pokemon,
             moves,
+            pokedex_id: pokemonData.pokedex_id,
           })
         );
       }

@@ -4,6 +4,7 @@ import Move from './Move';
 const PokemonSchema = new mongoose.Schema(
   {
     pokemon_data_id: { type: Schema.Types.ObjectId },
+    pokedex_id: { type: Number, requires: true },
     level: {
       type: Number,
       required: true,

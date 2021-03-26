@@ -31,9 +31,7 @@ class UserPokemonsController {
     }
 
     return res.json(
-      user.pokemons
-        .sort((a, b) => a.pokemon_data._id < b.pokemon_data._id)
-        .reverse()
+      user.pokemons.sort((a, b) => a.pokedex_id < b.pokedex_id).reverse()
     );
   }
 
@@ -56,7 +54,7 @@ class UserPokemonsController {
 
     const newLevel = pokemon.level + 1;
 
-    const newMove = willLearnNewMove(pokemon, newLevel);
+    const newMove = await willLearnNewMove(pokemon, newLevel);
 
     if (newMove) {
       // Pokemon já tem 4 habilidades?
@@ -90,7 +88,7 @@ class UserPokemonsController {
       }
     }
 
-    const newEvolution = willEvolve(pokemon, newLevel);
+    const newEvolution = await willEvolve(pokemon, newLevel);
 
     // Nova evolução ao Level-Up
     if (newEvolution) {
@@ -137,7 +135,7 @@ class UserPokemonsController {
       }
 
       // Evolui
-      user.pokemons.id(pokemonId).pokemon_data = evolutionPokemonData;
+      user.pokemons.id(pokemonId).pokemon_data_id = evolutionPokemonData.id;
       user.pokemons.id(pokemonId).name = evolutionPokemonData.name;
 
       evolvedTo = evolutionPokemonData.name;
@@ -174,9 +172,8 @@ class UserPokemonsController {
     let learnedMove;
 
     const pokemon = user.pokemons.id(pokemonId);
-    const canLearn = pokemon.pokemon_data.canLearn.find(
-      (move) => move === newMove.name
-    );
+    const pokemonData = PokemonData.findById(pokemon.pokemon_data_id);
+    const canLearn = pokemonData.canLearn.find((move) => move === newMove.name);
     if (!canLearn) {
       return res.status(400).json({ message: "Pokemon can't learn this move" });
     }
