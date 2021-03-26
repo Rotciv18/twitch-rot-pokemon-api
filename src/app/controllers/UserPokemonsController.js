@@ -85,6 +85,7 @@ class UserPokemonsController {
           learnedMove = newMove.name;
         }
       } else {
+        learnedMove = newMove.name;
         user.pokemons.id(pokemonId).moves.push(newMove);
       }
     }
@@ -102,33 +103,37 @@ class UserPokemonsController {
         evolutionPokemonData,
         newLevel
       );
-      if (pokemon.moves.length === 4) {
-        const { deleteMove } = req.query;
-        if (!deleteMove) {
-          return res.status(400).json({
-            message: 'Need to choose a move to delete',
-            newEvolutionMove,
-            moves: pokemon.moves,
-          });
-        }
-
-        // Remove o move escolhido para aprender o novo
-        if (deleteMove !== 'none') {
-          const moveToDelete = pokemon.moves.find(
-            (move) => move.name === deleteMove
-          );
-          if (!moveToDelete) {
-            return res.status(400).json({ message: 'Move is not learned yet' });
+      if (newEvolutionMove) {
+        if (pokemon.moves.length === 4) {
+          const { deleteMove } = req.query;
+          if (!deleteMove) {
+            return res.status(400).json({
+              message: 'Need to choose a move to delete',
+              newEvolutionMove,
+              moves: pokemon.moves,
+            });
           }
 
-          // Aprende novo Move
-          user.pokemons.id(pokemonId).moves.id(moveToDelete._id).remove();
-          user.pokemons.id(pokemonId).moves.push(newEvolutionMove);
+          // Remove o move escolhido para aprender o novo
+          if (deleteMove !== 'none') {
+            const moveToDelete = pokemon.moves.find(
+              (move) => move.name === deleteMove
+            );
+            if (!moveToDelete) {
+              return res
+                .status(400)
+                .json({ message: 'Move is not learned yet' });
+            }
 
-          learnedMove = newEvolutionMove.name;
+            // Aprende novo Move
+            user.pokemons.id(pokemonId).moves.id(moveToDelete._id).remove();
+            user.pokemons.id(pokemonId).moves.push(newEvolutionMove);
+
+            learnedMove = newEvolutionMove.name;
+          }
+        } else {
+          user.pokemons.id(pokemonId).moves.push(newEvolutionMove);
         }
-      } else {
-        user.pokemons.id(pokemonId).moves.push(newEvolutionMove);
       }
 
       // Evolui
@@ -209,7 +214,7 @@ class UserPokemonsController {
 
       return res.json({ pokemon, learnedMove });
     } catch (error) {
-      console.log(error);
+      return res.json(error);
     }
   }
 }

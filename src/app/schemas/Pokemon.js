@@ -1,10 +1,9 @@
-import mongoose from 'mongoose';
-import PokemonData from './PokemonData';
+import mongoose, { Schema } from 'mongoose';
 import Move from './Move';
 
 const PokemonSchema = new mongoose.Schema(
   {
-    pokemon_data: PokemonData.schema,
+    pokemon_data_id: { type: Schema.Types.ObjectId },
     level: {
       type: Number,
       required: true,

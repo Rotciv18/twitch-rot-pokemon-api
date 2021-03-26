@@ -1,6 +1,7 @@
 import User from '../app/schemas/User';
 import PokemonData from '../app/schemas/PokemonData';
 import getStreamAvatarsUserData from '../helpers/getStreamAvatarsUserData';
+import Pokemon from '../app/schemas/Pokemon';
 
 export default async () => {
   console.log('EXECUTING FILLUSERS NOW:');
@@ -21,13 +22,14 @@ export default async () => {
         const pokemonData = await PokemonData.findOne({ name: pokemon });
         const moves = pokemonData.moves.filter((move) => move.learnAt === 1);
 
-        user.pokemons.push({
-          pokemon_data: pokemonData,
-          name: pokemon,
-          moves,
-        });
+        user.pokemons.push(
+          new Pokemon({
+            pokemon_data_id: pokemonData._id,
+            name: pokemon,
+            moves,
+          })
+        );
       }
-      // console.log(user.pokemons);
     });
     await Promise.all(innerPromises);
     user.save();

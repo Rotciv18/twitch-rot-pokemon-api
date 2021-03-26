@@ -78,7 +78,7 @@ export default async () => {
     const pokemon = pokemonResponse.data;
 
     const newPokemon = {
-      _id: pokemonSpecie.id,
+      pokedex_id: pokemonSpecie.id,
       name: pokemonSpecie.name,
       sprite: pokemon.sprites.front_default,
     };

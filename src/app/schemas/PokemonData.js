@@ -4,8 +4,8 @@ import Evolution from './Evolution';
 
 const PokemonDataSchema = new mongoose.Schema(
   {
-    _id: {
-      type: String,
+    pokedex_id: {
+      type: Number,
       required: true,
     },
     name: {

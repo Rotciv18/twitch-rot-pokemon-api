@@ -16,6 +16,7 @@ const UserSchema = new mongoose.Schema(
       type: [Pokemon.schema],
       default: [],
     },
+    setup: [Pokemon.schema],
   },
   { timestamps: true }
 );
