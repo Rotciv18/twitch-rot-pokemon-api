@@ -23,6 +23,11 @@ class User extends Model {
       foreignKey: 'user_id',
       as: 'pokemons',
     });
+
+    this.belongsTo(models.Setup, {
+      foreignKey: 'setup_id',
+      as: 'setup',
+    });
   }
 }
 

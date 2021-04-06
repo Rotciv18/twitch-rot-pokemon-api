@@ -5,8 +5,9 @@ import MoveData from '../app/models/MoveData';
 import PokemonData from '../app/models/PokemonData';
 import Pokemon from '../app/models/Pokemon';
 import User from '../app/models/User';
+import Setup from '../app/models/Setup';
 
-const models = [MoveData, PokemonData, Pokemon, User];
+const models = [MoveData, PokemonData, Pokemon, User, Setup];
 
 class Database {
   constructor() {

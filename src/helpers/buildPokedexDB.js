@@ -71,8 +71,12 @@ function getCanLearnMoves(pokemon) {
 }
 
 export default async () => {
+  const indexes = [];
   for (let i = 1; i <= lastPokemon; i++) {
-    console.log(i);
+    indexes.push(i);
+  }
+  const promises = indexes.map(async (i) => {
+    // console.log(i);
 
     const pokemonSpecieResponse = await axios.get(
       `${baseUrl}/pokemon-species/${i}`
@@ -110,5 +114,8 @@ export default async () => {
     newPokemon.can_learn = getCanLearnMoves(pokemon);
 
     await PokemonData.create(newPokemon);
-  }
+  });
+
+  await Promise.all(promises);
+  console.log('cabou');
 };

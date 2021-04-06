@@ -24,6 +24,11 @@ class Pokemon extends Model {
       foreignKey: 'pokemon_data_id',
       as: 'pokemon_data',
     });
+
+    this.belongsTo(models.Setup, {
+      foreignKey: 'setup_id',
+      as: 'setup',
+    });
   }
 }
 

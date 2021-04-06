@@ -5,7 +5,6 @@ import {
 } from '../services/PokemonServices';
 import PokemonData from '../models/PokemonData';
 import MoveData from '../models/MoveData';
-import Move from '../models/Move';
 import Pokemon from '../models/Pokemon';
 import { getUserPoints, addPoints } from '../services/StreamElements/Points';
 
@@ -195,7 +194,6 @@ class UserPokemonsController {
     const canLearn = pokemon.pokemon_data.can_learn.find(
       (move) => move === newMove.name
     );
-    console.log(newMove.name);
     if (!canLearn) {
       return res.status(400).json({ message: "Pokemon can't learn this move" });
     }

@@ -2,6 +2,7 @@ import User from '../app/models/User';
 import PokemonData from '../app/models/PokemonData';
 import getStreamAvatarsUserData from '../helpers/getStreamAvatarsUserData';
 import Pokemon from '../app/models/Pokemon';
+import Setup from '../app/models/Setup';
 
 export default async () => {
   console.log('EXECUTING FILLUSERS NOW:');
@@ -13,6 +14,10 @@ export default async () => {
       include: 'pokemons',
     });
     const user = foundUser || (await User.create({ username }));
+    if (!foundUser) {
+      const setup = await Setup.create({ user_id: user.id });
+      user.update({ setup_id: setup.id });
+    }
 
     const innerPromises = Object.keys(
       userData[username].ownedObjects.avatars
