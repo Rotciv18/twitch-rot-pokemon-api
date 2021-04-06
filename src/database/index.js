@@ -2,12 +2,11 @@ import Sequelize from 'sequelize';
 import databaseConfig from '../config/database';
 
 import MoveData from '../app/models/MoveData';
-import Move from '../app/models/Move';
 import PokemonData from '../app/models/PokemonData';
 import Pokemon from '../app/models/Pokemon';
 import User from '../app/models/User';
 
-const models = [MoveData, Move, PokemonData, Pokemon, User];
+const models = [MoveData, PokemonData, Pokemon, User];
 
 class Database {
   constructor() {
