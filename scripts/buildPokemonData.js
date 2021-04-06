@@ -3,4 +3,4 @@ import 'dotenv/config';
 
 import('../src/database/index');
 
-buildPokedexDB();
+setTimeout(() => buildPokedexDB(), 1000);

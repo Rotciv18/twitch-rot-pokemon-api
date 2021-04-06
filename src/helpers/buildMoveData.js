@@ -1,5 +1,5 @@
 import axios from 'axios';
-import MoveData from '../app/schemas/MoveData';
+import MoveData from '../app/models/MoveData';
 
 const baseUrl = 'https://pokeapi.co/api/v2';
 const machineCount = 1442;
@@ -11,13 +11,18 @@ export default async function buildTMData() {
   }
 
   const promises = indexArray.map(async (index) => {
-    const machineResponse = await axios.get(`${baseUrl}/machine/${index}/`);
+    let machineResponse;
+    try {
+      machineResponse = await axios.get(`${baseUrl}/machine/${index}`);
+    } catch (e) {
+      machineResponse = await axios.get(`${baseUrl}/machine/${index}/`);
+    }
     const machineData = machineResponse.data;
 
     if (machineData.version_group.name === 'red-blue') {
       await MoveData.create({
         name: machineData.item.name,
-        moveName: machineData.move.name,
+        move_name: machineData.move.name,
       });
     }
   });

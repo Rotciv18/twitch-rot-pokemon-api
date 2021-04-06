@@ -1,5 +1,4 @@
 import app from './app';
-import buildPokedexDB from './helpers/buildPokedexDB';
 
 try {
   app.listen(3333);

@@ -1,8 +1,8 @@
-import MoveData from '../schemas/MoveData';
+import MoveData from '../models/MoveData';
 
 class MovesController {
   async index(req, res) {
-    const moves = await MoveData.find().sort('name');
+    const moves = await MoveData.findAll({ order: [['name', 'ASC']] });
 
     return res.json(moves);
   }

@@ -1,16 +1,20 @@
 import axios from 'axios';
-import PokemonData from '../app/schemas/PokemonData';
+import PokemonData from '../app/models/PokemonData';
 
 const baseUrl = 'https://pokeapi.co/api/v2';
 const lastPokemon = 151;
 
-function getPokemonEvolutionData(evoChain, pokemonName) {
+async function getPokemonEvolutionData(evoChain, pokemonName) {
   let evolutions = [];
 
   // Espécie encontrada
   if (evoChain.species.name === pokemonName && evoChain.evolves_to.length > 0) {
-    evoChain.evolves_to.forEach((evolution) => {
+    const promises = evoChain.evolves_to.map(async (evolution) => {
+      const pokeEvolution = await axios.get(
+        `${baseUrl}/pokemon/${evolution.species.name}`
+      );
       evolutions.push({
+        id: pokeEvolution.data.id,
         name: evolution.species.name,
         atLevel: evolution.evolution_details[0].min_level,
         trigger: evolution.evolution_details[0].trigger.name,
@@ -19,6 +23,7 @@ function getPokemonEvolutionData(evoChain, pokemonName) {
           : null,
       });
     });
+    await Promise.all(promises);
 
     return evolutions;
   }
@@ -74,11 +79,16 @@ export default async () => {
     );
     const pokemonSpecie = pokemonSpecieResponse.data;
 
-    const pokemonResponse = await axios.get(`${baseUrl}/pokemon/${i}/`);
+    let pokemonResponse;
+    try {
+      pokemonResponse = await axios.get(`${baseUrl}/pokemon/${i}/`);
+    } catch (e) {
+      pokemonResponse = await axios.get(`${baseUrl}/pokemon/${i}`);
+    }
     const pokemon = pokemonResponse.data;
 
     const newPokemon = {
-      pokedex_id: pokemonSpecie.id,
+      id: pokemonSpecie.id,
       name: pokemonSpecie.name,
       sprite: pokemon.sprites.front_default,
     };
@@ -88,16 +98,16 @@ export default async () => {
     );
     const evolutionChain = evolutionChainResponse.data.chain;
 
-    const evolutionData = getPokemonEvolutionData(
+    const evolutionData = await getPokemonEvolutionData(
       evolutionChain,
       pokemonSpecie.name
     );
     if (evolutionData) {
-      Object.assign(newPokemon, { canEvolve: true, evolutions: evolutionData });
+      Object.assign(newPokemon, { evolutions: evolutionData });
     }
 
     newPokemon.moves = getPokemonMoves(pokemon);
-    newPokemon.canLearn = getCanLearnMoves(pokemon);
+    newPokemon.can_learn = getCanLearnMoves(pokemon);
 
     await PokemonData.create(newPokemon);
   }

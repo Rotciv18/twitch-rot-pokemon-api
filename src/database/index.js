@@ -1,5 +1,13 @@
-import mongoose from 'mongoose';
-import mongoConfig from '../config/mongo';
+import Sequelize from 'sequelize';
+import databaseConfig from '../config/database';
+
+import MoveData from '../app/models/MoveData';
+import Move from '../app/models/Move';
+import PokemonData from '../app/models/PokemonData';
+import Pokemon from '../app/models/Pokemon';
+import User from '../app/models/User';
+
+const models = [MoveData, Move, PokemonData, Pokemon, User];
 
 class Database {
   constructor() {
@@ -7,32 +15,13 @@ class Database {
   }
 
   init() {
-    this.mongoConnection = mongoose.connect(mongoConfig.url, {
-      dbName: mongoConfig.dbname,
-      user: mongoConfig.username,
-      pass: mongoConfig.password,
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-    });
+    this.connection = new Sequelize(databaseConfig);
 
-    mongoose.connection.on('connected', () => {
-      console.log('Successfully connected to MongoDB');
-    });
-
-    mongoose.connection.on('error', (error) => {
-      console.log(error);
-    });
-
-    mongoose.connection.on('disconnected', () => {
-      console.log('Successfully disconnected from MongoDB');
-    });
-
-    process.on('SIGINT', async () => {
-      await mongoose.connection.close();
-      process.exit();
-    });
+    models
+      .map((model) => model.init(this.connection))
+      .map(
+        (model) => model.associate && model.associate(this.connection.models)
+      );
   }
 }
 

@@ -3,9 +3,10 @@ import {
   willEvolve,
   willLearnNewMoveEvolved,
 } from '../services/PokemonServices';
-import PokemonData from '../schemas/PokemonData';
-import MoveData from '../schemas/MoveData';
-import Move from '../schemas/Move';
+import PokemonData from '../models/PokemonData';
+import MoveData from '../models/MoveData';
+import Move from '../models/Move';
+import Pokemon from '../models/Pokemon';
 import { getUserPoints, addPoints } from '../services/StreamElements/Points';
 
 const LEVEL_UP_COST = 1000;
@@ -19,7 +20,7 @@ class UserPokemonsController {
       return res.status(400).json({ message: 'User not found' });
     }
 
-    const pokemon = await user.pokemons.id(pokemonId);
+    const pokemon = await Pokemon.findByPk(pokemonId);
 
     return res.json(pokemon);
   }
@@ -29,10 +30,13 @@ class UserPokemonsController {
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
+    const pokemons = await Pokemon.findAll({
+      where: { user_id: user.id },
+      include: 'pokemon_data',
+      order: [['pokemon_data', 'id', 'asc']],
+    });
 
-    return res.json(
-      user.pokemons.sort((a, b) => a.pokedex_id < b.pokedex_id).reverse()
-    );
+    return res.json(pokemons);
   }
 
   async levelup(req, res) {
@@ -47,7 +51,9 @@ class UserPokemonsController {
     let evolvedTo;
     let learnedMove;
 
-    const pokemon = user.pokemons.id(pokemonId);
+    const pokemon = await Pokemon.findByPk(pokemonId, {
+      include: 'pokemon_data',
+    });
     if (!pokemon) {
       return res.status(400).json({ message: 'Pokemon not found' });
     }
@@ -77,14 +83,17 @@ class UserPokemonsController {
           }
 
           // Aprende novo Move
-          user.pokemons.id(pokemonId).moves.id(moveToDelete._id).remove();
-          user.pokemons.id(pokemonId).moves.push(newMove);
+          const remainingMoves = [];
+          pokemon.moves.forEach((move) => {
+            if (move.name !== moveToDelete.name) remainingMoves.push(move);
+          });
+          pokemon.moves = [...remainingMoves, newMove];
 
           learnedMove = newMove.name;
         }
       } else {
         learnedMove = newMove.name;
-        user.pokemons.id(pokemonId).moves.push(newMove);
+        pokemon.moves = [...pokemon.moves, newMove];
       }
     }
 
@@ -124,31 +133,41 @@ class UserPokemonsController {
             }
 
             // Aprende novo Move
-            user.pokemons.id(pokemonId).moves.id(moveToDelete._id).remove();
-            user.pokemons.id(pokemonId).moves.push(newEvolutionMove);
+            const remainingMoves = [];
+            pokemon.moves.forEach((move) => {
+              if (move.name !== moveToDelete.name) {
+                remainingMoves.push(move);
+              }
+            });
+            pokemon.moves = [...remainingMoves, newEvolutionMove];
 
             learnedMove = newEvolutionMove.name;
           }
         } else {
-          user.pokemons.id(pokemonId).moves.push(newEvolutionMove);
+          pokemon.moves = [...pokemon.moves, newEvolutionMove];
         }
       }
 
       // Evolui
-      user.pokemons.id(pokemonId).pokemon_data_id = evolutionPokemonData.id;
-      user.pokemons.id(pokemonId).name = evolutionPokemonData.name;
+      pokemon.pokemon_data_id = newEvolution.id;
+      pokemon.name = newEvolution.name;
 
-      evolvedTo = evolutionPokemonData.name;
+      evolvedTo = newEvolution.name;
     }
 
-    user.pokemons.id(pokemonId).level = newLevel;
+    pokemon.level = newLevel;
     user.level += 1;
 
     try {
+      await pokemon.save();
       await user.save();
       await addPoints(user.username, -LEVEL_UP_COST);
       return res.json({
-        pokemon: user.pokemons.id(pokemonId),
+        pokemon: {
+          name: pokemon.name,
+          level: pokemon.level,
+          moves: pokemon.moves,
+        },
         learnedMove,
         evolvedTo,
       });
@@ -160,20 +179,23 @@ class UserPokemonsController {
   async learnMove(req, res) {
     // TODO: Checar e cobrar pontos de usuário
 
-    const { user } = req;
     const { pokemonId } = req.params;
     const { moveId } = req.query;
     if (!moveId) {
       return res.status(400).json({ message: 'Move ID is required' });
     }
 
-    const moveData = await MoveData.findById(moveId);
-    const newMove = new Move({ name: moveData.moveName });
+    const moveData = await MoveData.findByPk(moveId);
+    const newMove = { name: moveData.move_name, learnAt: 1 };
     let learnedMove;
 
-    const pokemon = user.pokemons.id(pokemonId);
-    const pokemonData = PokemonData.findById(pokemon.pokemon_data_id);
-    const canLearn = pokemonData.canLearn.find((move) => move === newMove.name);
+    const pokemon = await Pokemon.findByPk(pokemonId, {
+      include: 'pokemon_data',
+    });
+    const canLearn = pokemon.pokemon_data.can_learn.find(
+      (move) => move === newMove.name
+    );
+    console.log(newMove.name);
     if (!canLearn) {
       return res.status(400).json({ message: "Pokemon can't learn this move" });
     }
@@ -197,19 +219,29 @@ class UserPokemonsController {
         }
 
         // Aprende novo Move
-        user.pokemons.id(pokemonId).moves.id(moveToDelete._id).remove();
-        user.pokemons.id(pokemonId).moves.push(newMove);
+        const remainingMoves = [];
+        pokemon.moves.forEach((move) => {
+          if (move.name !== moveToDelete.name) remainingMoves.push(move);
+        });
+        pokemon.moves = [...remainingMoves, newMove];
 
         learnedMove = newMove.name;
       }
     } else {
-      user.pokemons.id(pokemonId).moves.push(newMove);
+      pokemon.moves = [...pokemon.moves, newMove];
     }
 
     try {
-      await user.save();
+      await pokemon.save();
 
-      return res.json({ pokemon, learnedMove });
+      return res.json({
+        pokemon: {
+          name: pokemon.name,
+          level: pokemon.level,
+          moves: pokemon.moves,
+        },
+        learnedMove,
+      });
     } catch (error) {
       return res.json(error);
     }
