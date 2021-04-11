@@ -11,8 +11,6 @@ export default async (req, res, next) => {
     return res.status(400).json({ message: 'ID not provided' });
   }
 
-  console.log(twitch_id);
-
   const [, token] = auth.split(' ');
 
   if (token !== process.env.AUTH_TOKEN) {

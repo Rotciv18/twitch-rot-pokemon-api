@@ -3,6 +3,7 @@ import UserBattleInvitationsController from '../controllers/Users/UserBattleInvi
 
 const routes = new Router();
 
-routes.get('/invitations', UserBattleInvitationsController.store);
+routes.get('/invitations', UserBattleInvitationsController.index);
+routes.post('/invitations', UserBattleInvitationsController.store);
 
 export default routes;

@@ -6,7 +6,7 @@ export default Yup.object().shape({
     .of(Yup.date())
     .min(3, 'Should at least send 3 different dates')
     .required(),
-  challenge_type: Yup.string(),
+  challenge_type: Yup.string().oneOf(['casual', 'position']),
   position_id: Yup.number().when('challenge_type', (challenge_type, field) =>
     challenge_type === 'position' ? field.required() : field
   ),

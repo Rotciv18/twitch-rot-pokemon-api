@@ -6,11 +6,13 @@ import MovesRoutes from './MovesRoutes';
 import SetupsRoutes from './SetupsRoutes';
 import PositionsRoutes from './PositionsRoutes';
 import UserBattlesRoutes from './UserBattlesRoutes';
+import BattlesRoutes from './BattlesRoutes';
 
 const routes = new Router();
 
 routes.use('/api/moves/', MovesRoutes);
 routes.use('/api/positions', PositionsRoutes);
+routes.use('/api/battles', BattlesRoutes);
 
 routes.use(tokenMiddleware);
 

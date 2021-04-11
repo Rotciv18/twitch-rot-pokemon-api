@@ -30,6 +30,11 @@ module.exports = {
         type: Sequelize.ENUM('casual', 'position'),
         defaultValue: 'casual',
       },
+      is_scheduled: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       created_at: Sequelize.DATE,
       updated_at: Sequelize.DATE,
     });
