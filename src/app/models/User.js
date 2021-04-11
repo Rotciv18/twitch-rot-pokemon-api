@@ -1,19 +1,18 @@
 import Sequelize, { Model } from 'sequelize';
-import { v4 as uuid } from 'uuid';
 
 class User extends Model {
   static init(sequelize) {
     super.init(
       {
+        id: {
+          type: Sequelize.STRING,
+          primaryKey: true,
+        },
         username: Sequelize.STRING,
         level: Sequelize.INTEGER,
       },
       { sequelize, tableName: 'users' }
     );
-
-    this.addHook('beforeCreate', async (user) => {
-      user.id = uuid();
-    });
 
     return this;
   }

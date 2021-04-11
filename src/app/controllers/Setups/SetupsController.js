@@ -1,5 +1,5 @@
-import Setup from '../models/Setup';
-import Pokemon from '../models/Pokemon';
+import Setup from '../../models/Setup';
+import Pokemon from '../../models/Pokemon';
 
 class SetupsController {
   async index(req, res) {

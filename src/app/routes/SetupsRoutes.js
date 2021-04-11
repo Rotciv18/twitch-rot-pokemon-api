@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import SetupsController from '../controllers/SetupsController';
+import SetupsController from '../controllers/Setups/SetupsController';
 
 const routes = new Router();
 

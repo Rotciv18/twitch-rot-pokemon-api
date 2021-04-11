@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import UserPokemonsController from '../controllers/UserPokemonsController';
+import UserPokemonsController from '../controllers/Users/UserPokemonsController';
 
 const routes = new Router();
 

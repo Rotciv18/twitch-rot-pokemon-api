@@ -8,7 +8,7 @@ module.exports = {
         autoIncrement: true,
       },
       user_id: {
-        type: Sequelize.UUID,
+        type: Sequelize.STRING,
         references: { model: 'users', key: 'id' },
         allowNull: false,
       },

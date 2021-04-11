@@ -1,4 +1,4 @@
-import MoveData from '../models/MoveData';
+import MoveData from '../../models/MoveData';
 
 class MovesController {
   async index(req, res) {

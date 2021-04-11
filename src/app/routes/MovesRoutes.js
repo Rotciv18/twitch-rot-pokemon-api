@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import MovesController from '../controllers/MovesController';
+import MovesController from '../controllers/Moves/MovesController';
 
 const routes = new Router();
 

@@ -2,11 +2,11 @@ import {
   willLearnNewMove,
   willEvolve,
   willLearnNewMoveEvolved,
-} from '../services/PokemonServices';
-import PokemonData from '../models/PokemonData';
-import MoveData from '../models/MoveData';
-import Pokemon from '../models/Pokemon';
-import { getUserPoints, addPoints } from '../services/StreamElements/Points';
+} from '../../services/PokemonServices';
+import PokemonData from '../../models/PokemonData';
+import MoveData from '../../models/MoveData';
+import Pokemon from '../../models/Pokemon';
+import { getUserPoints, addPoints } from '../../services/StreamElements/Points';
 
 const LEVEL_UP_COST = 1000;
 
