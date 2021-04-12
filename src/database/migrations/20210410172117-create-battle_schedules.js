@@ -17,14 +17,19 @@ module.exports = {
         references: { model: 'users', key: 'id' },
         allowNull: false,
       },
-      battle_date: {
-        type: Sequelize.DATE,
-        allowNull: false,
+      winner_id: {
+        type: Sequelize.STRING,
+        references: { model: 'users', key: 'id' },
+        allowNull: true,
       },
-      to_claim_id: {
+      position_id: {
         type: Sequelize.INTEGER,
         references: { model: 'positions', key: 'id' },
         allowNull: true,
+      },
+      battle_date: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
       challenge_type: {
         type: Sequelize.ENUM('casual', 'position'),
