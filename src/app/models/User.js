@@ -10,6 +10,9 @@ class User extends Model {
         },
         username: Sequelize.STRING,
         level: Sequelize.INTEGER,
+        pokeballs: Sequelize.INTEGER,
+        great_balls: Sequelize.INTEGER,
+        ultra_balls: Sequelize.INTEGER,
       },
       { sequelize, tableName: 'users' }
     );
