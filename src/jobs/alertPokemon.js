@@ -6,7 +6,11 @@ import { triggerAlert } from '../app/services/StreamLabs/Alerts';
 import twitchClient from '../twitchClient';
 import channelConfig from '../config/channel';
 import alertConstants from '../config/alertConstants';
-import { giftPokemon } from '../app/services/Twitch/twitchServices';
+import {
+  giftPokemon,
+  chathatMessage,
+  chatMessage,
+} from '../app/services/Twitch/twitchServices';
 
 const capitalize = (s) => {
   if (typeof s !== 'string') return '';
@@ -181,17 +185,13 @@ export default async () => {
         if (!hasPokeballs(user, ballType)) {
           isInCatch = false;
           twitchClient.emoteonlyoff(channelConfig.channelName);
-          twitchClient.say(
-            channelConfig.channelName,
-            `${userDisplayName} não tem pokebolas!`
-          );
+          chatMessage(`${userDisplayName} não tem pokebolas!`);
 
           // User has Pokemons
         } else if (hasPokemon) {
           isInCatch = false;
           twitchClient.emoteonlyoff(channelConfig.channelName);
-          twitchClient.say(
-            channelConfig.channelName,
+          chatMessage(
             `${userDisplayName} já tem um ${capitalize(pokemonData.name)}!`
           );
 
@@ -199,18 +199,15 @@ export default async () => {
         } else if (roll <= ballChance(ballType)) {
           disconnected = true;
           setTimeout(() => {
-            twitchClient.say(channelConfig.channelName, '1...');
+            chatMessage('1...');
             setTimeout(() => {
-              twitchClient.say(channelConfig.channelName, '2...');
+              chatMessage('2...');
               setTimeout(() => {
-                twitchClient.say(channelConfig.channelName, '3...');
+                chatMessage('3...');
                 setTimeout(async () => {
                   // Catching Pokemon
 
-                  twitchClient.say(
-                    channelConfig.channelName,
-                    `${capitalize(pokemonData.name)} foi capturado!`
-                  );
+                  chatMessage(`${capitalize(pokemonData.name)} foi capturado!`);
 
                   triggerAlert({
                     type: 'follow',
@@ -235,7 +232,10 @@ export default async () => {
                   await giftPokemon(username, pokemonData.name);
                   await twitchClient.emoteonlyoff(channelConfig.channelName);
 
-                  twitchClient.disconnect();
+                  twitchClient.removeListener(
+                    'message',
+                    twitchClient._events.message
+                  );
                 }, 500);
               }, 1000);
             }, 1000);
@@ -244,17 +244,16 @@ export default async () => {
           // User missed the pokemon
         } else {
           setTimeout(() => {
-            twitchClient.say(channelConfig.channelName, '1...');
+            chatMessage('1...');
             setTimeout(() => {
-              twitchClient.say(channelConfig.channelName, '2...');
+              chatMessage('2...');
               setTimeout(async () => {
                 // Failing to catch pokemon
 
-                twitchClient.say(
-                  channelConfig.channelName,
+                chatMessage(
                   `${capitalize(
                     pokemonData.name
-                  )} escapou da pokebola de ${userDisplayName}`
+                  )} escapou da pokebola de ${userDisplayName} (${ballChance}% de chance de captura).`
                 );
 
                 await twitchClient.emoteonlyoff(channelConfig.channelName);
@@ -266,16 +265,11 @@ export default async () => {
       }
     });
 
-    twitchClient.connect();
-
     setTimeout(() => {
       twitchClient.emoteonlyoff(channelConfig.channelName);
       if (!disconnected) {
-        twitchClient.say(
-          channelConfig.channelName,
-          `O ${capitalize(pokemonData.name)} fugiu!`
-        );
-        twitchClient.disconnect();
+        chatMessage(`O ${capitalize(pokemonData.name)} fugiu!`);
+        twitchClient.removeListener('message', twitchClient._events.message);
       }
     }, 45000);
   }

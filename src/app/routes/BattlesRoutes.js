@@ -5,6 +5,6 @@ import BattleSchedulesController from '../controllers/Battles/BattleSchedulesCon
 const routes = new Router();
 
 routes.get('/invitations', BattleInvitationsController.index);
-routes.update('/schedules/:schedule_id', BattleSchedulesController.update);
+routes.put('/schedules/:schedule_id', BattleSchedulesController.update);
 
 export default routes;

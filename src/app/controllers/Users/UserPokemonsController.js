@@ -159,9 +159,7 @@ class UserPokemonsController {
       evolvedTo = newEvolution.name;
 
       // Gift pokemon to user
-      await twitchClient.connect();
       await giftPokemon(user.username, newEvolution.name);
-      twitchClient.disconnect();
     }
 
     pokemon.level = newLevel;
