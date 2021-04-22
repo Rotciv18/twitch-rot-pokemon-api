@@ -50,7 +50,7 @@ class UserBattleInvitationsController {
 
     const battleInvitation = await BattleInvitation.findByPk(invitation_id);
     if (!battleInvitation) {
-      return res.status(401).json({ message: 'Battle invitation not found' });
+      return res.status(404).json({ message: 'Battle invitation not found' });
     }
     battleInvitation.challenger_available_dates.every((date) => {
       if (isSameDay(date, parseISO(battle_date))) {

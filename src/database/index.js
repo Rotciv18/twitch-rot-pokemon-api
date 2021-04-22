@@ -9,6 +9,7 @@ import Setup from '../app/models/Setup';
 import Position from '../app/models/Position';
 import BattleInvitation from '../app/models/BattleInvitation';
 import BattleSchedule from '../app/models/BattleSchedule';
+import Stone from '../app/models/Stone';
 
 const models = [
   MoveData,
@@ -19,6 +20,7 @@ const models = [
   BattleInvitation,
   BattleSchedule,
   Position,
+  Stone,
 ];
 
 class Database {

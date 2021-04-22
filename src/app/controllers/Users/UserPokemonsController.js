@@ -1,17 +1,23 @@
+import PokemonData from '../../models/PokemonData';
+import MoveData from '../../models/MoveData';
+import Pokemon from '../../models/Pokemon';
+import Stone from '../../models/Stone';
+
 import {
   willLearnNewMove,
   willEvolve,
   willLearnNewMoveEvolved,
   hasEvolvedPokemon,
 } from '../../services/PokemonServices';
-import PokemonData from '../../models/PokemonData';
-import MoveData from '../../models/MoveData';
-import Pokemon from '../../models/Pokemon';
 import { getUserPoints, addPoints } from '../../services/StreamElements/Points';
-
-import twitchClient from '../../../twitchClient';
 import { triggerAlert } from '../../services/StreamLabs/Alerts';
-import { giftPokemon } from '../../services/Twitch/twitchServices';
+import {
+  giftPokemon,
+  removePokemon,
+} from '../../services/Twitch/twitchServices';
+
+import alertConstants from '../../../config/alertConstants';
+import capitalize from '../../../helpers/capitalize';
 
 const LEVEL_UP_COST = 1000;
 
@@ -152,14 +158,24 @@ class UserPokemonsController {
         }
       }
 
+      // Gift pokemon to user
+      await giftPokemon(user.username, newEvolution.name);
+      await removePokemon(user.username, pokemon.name);
+      triggerAlert({
+        type: 'follow',
+        message: `${capitalize(user.username)} evoluiu seu ${capitalize(
+          pokemon.name
+        )} para um ${capitalize(newEvolution.name)}`,
+        image_href: alertConstants.pokemonEvolveGifUrl,
+        sound_href: alertConstants.pokemonEvolvedSoundUrl,
+        duration: 3500,
+      });
+
       // Evolves
       pokemon.pokemon_data_id = newEvolution.id;
       pokemon.name = newEvolution.name;
 
       evolvedTo = newEvolution.name;
-
-      // Gift pokemon to user
-      await giftPokemon(user.username, newEvolution.name);
     }
 
     pokemon.level = newLevel;
@@ -251,6 +267,103 @@ class UserPokemonsController {
     } catch (error) {
       return res.json(error);
     }
+  }
+
+  async stoneEvolve(req, res) {
+    const { user } = req;
+    const { pokemonId, stoneId } = req.params;
+
+    const pokemon = await Pokemon.findByPk(pokemonId, {
+      include: 'pokemon_data',
+    });
+    const stone = await Stone.findByPk(stoneId);
+
+    const newEvolution = pokemon.pokemon_data.evolutions.find(
+      (evolution) => evolution.withItem === stone.name
+    );
+
+    if (!newEvolution) {
+      return res
+        .status(401)
+        .json({ message: "Pokemon can't evolve with this item" });
+    }
+
+    console.log(!(await hasEvolvedPokemon(newEvolution, user)));
+
+    let learnedMove;
+    let evolvedTo;
+
+    if (newEvolution && !(await hasEvolvedPokemon(newEvolution, user))) {
+      const evolutionPokemonData = await PokemonData.findOne({
+        name: newEvolution.name,
+      });
+
+      // Pokemon irá aprender novo move ao evoluir
+      const newEvolutionMove = willLearnNewMoveEvolved(
+        evolutionPokemonData,
+        pokemon.level
+      );
+      if (newEvolutionMove) {
+        if (pokemon.moves.length === 4) {
+          const { deleteMove } = req.query;
+          if (!deleteMove) {
+            return res.status(400).json({
+              message: 'Need to choose a move to delete',
+              newEvolutionMove,
+              moves: pokemon.moves,
+            });
+          }
+
+          // Remove o move escolhido para aprender o novo
+          if (deleteMove !== 'none') {
+            const moveToDelete = pokemon.moves.find(
+              (move) => move.name === deleteMove
+            );
+            if (!moveToDelete) {
+              return res
+                .status(400)
+                .json({ message: 'Move is not learned yet' });
+            }
+
+            // Learns new Move
+            const remainingMoves = [];
+            pokemon.moves.forEach((move) => {
+              if (move.name !== moveToDelete.name) {
+                remainingMoves.push(move);
+              }
+            });
+            pokemon.moves = [...remainingMoves, newEvolutionMove];
+
+            learnedMove = newEvolutionMove.name;
+          }
+        } else {
+          pokemon.moves = [...pokemon.moves, newEvolutionMove];
+        }
+      }
+
+      // Gift pokemon to user
+      await giftPokemon(user.username, newEvolution.name);
+      await removePokemon(user.username, pokemon.name);
+      triggerAlert({
+        type: 'follow',
+        message: `${capitalize(user.username)} evoluiu seu ${capitalize(
+          pokemon.name
+        )} para um ${capitalize(newEvolution.name)}`,
+        image_href: alertConstants.pokemonEvolveGifUrl,
+        sound_href: alertConstants.pokemonEvolvedSoundUrl,
+        duration: 3500,
+      });
+
+      // Evolves
+      pokemon.pokemon_data_id = newEvolution.id;
+      pokemon.name = newEvolution.name;
+
+      evolvedTo = newEvolution.name;
+    }
+
+    await pokemon.save();
+
+    return res.json(pokemon, evolvedTo, learnedMove);
   }
 }
 

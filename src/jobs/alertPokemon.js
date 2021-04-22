@@ -8,14 +8,10 @@ import channelConfig from '../config/channel';
 import alertConstants from '../config/alertConstants';
 import {
   giftPokemon,
-  chathatMessage,
   chatMessage,
 } from '../app/services/Twitch/twitchServices';
 
-const capitalize = (s) => {
-  if (typeof s !== 'string') return '';
-  return s.charAt(0).toUpperCase() + s.slice(1);
-};
+import capitalize from '../helpers/capitalize';
 
 function isBall(pokeballString) {
   return pokeballString === '!ball' || '!great' || '!ultra';

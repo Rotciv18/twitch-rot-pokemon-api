@@ -13,7 +13,7 @@ export const willLearnNewMoveEvolved = (evolutionPokemonData, newLevel) =>
 
 export const hasEvolvedPokemon = async (evolution, user) => {
   const hasEvolution = await Pokemon.findOne({
-    where: { user_id: user.id, id: evolution.id },
+    where: { user_id: user.id, pokemon_data_id: evolution.id },
   });
 
   if (hasEvolution) {
