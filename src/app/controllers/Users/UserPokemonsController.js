@@ -2,11 +2,16 @@ import {
   willLearnNewMove,
   willEvolve,
   willLearnNewMoveEvolved,
+  hasEvolvedPokemon,
 } from '../../services/PokemonServices';
 import PokemonData from '../../models/PokemonData';
 import MoveData from '../../models/MoveData';
 import Pokemon from '../../models/Pokemon';
 import { getUserPoints, addPoints } from '../../services/StreamElements/Points';
+
+import twitchClient from '../../../twitchClient';
+import { triggerAlert } from '../../services/StreamLabs/Alerts';
+import { giftPokemon } from '../../services/Twitch/twitchServices';
 
 const LEVEL_UP_COST = 1000;
 
@@ -99,7 +104,7 @@ class UserPokemonsController {
     const newEvolution = await willEvolve(pokemon, newLevel);
 
     // Nova evolução ao Level-Up
-    if (newEvolution) {
+    if (newEvolution && !hasEvolvedPokemon(newEvolution, user)) {
       const evolutionPokemonData = await PokemonData.findOne({
         name: newEvolution.name,
       });
@@ -131,7 +136,7 @@ class UserPokemonsController {
                 .json({ message: 'Move is not learned yet' });
             }
 
-            // Aprende novo Move
+            // Learns new Move
             const remainingMoves = [];
             pokemon.moves.forEach((move) => {
               if (move.name !== moveToDelete.name) {
@@ -147,11 +152,16 @@ class UserPokemonsController {
         }
       }
 
-      // Evolui
+      // Evolves
       pokemon.pokemon_data_id = newEvolution.id;
       pokemon.name = newEvolution.name;
 
       evolvedTo = newEvolution.name;
+
+      // Gift pokemon to user
+      await twitchClient.connect();
+      await giftPokemon(user.username, newEvolution.name);
+      twitchClient.disconnect();
     }
 
     pokemon.level = newLevel;
