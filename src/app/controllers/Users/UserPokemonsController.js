@@ -359,6 +359,10 @@ class UserPokemonsController {
       pokemon.name = newEvolution.name;
 
       evolvedTo = newEvolution.name;
+    } else {
+      return res
+        .status(401)
+        .json({ message: 'User already has this evolved pokemon' });
     }
 
     await pokemon.save();

@@ -1,7 +1,5 @@
-COMPRA DE ITENS PARA EVOLUÇÃO
-
-DAR O POKEMON EVOLUÍDO PARA USUÁRIO NO STREAM AVATARS APÓS EVOLUÇÃO
-  • CHECAR EXISTÊNCIA DE POKEMONS ANTES DE EVOLUIR
+IMPLEMENTAR FILA COM REQUISIÇÕES POST PARA https://server.streamavatars.com/ext/updates/33699502
+  • Salvar todos os pokemons comprados dos usuários a partir das respostas dessa requisição
 
 TRANSIÇÃO DE POKEMONS ENTRE USUÁRIOS (SUBS ONLY)
 
@@ -10,6 +8,3 @@ BLOQUEAR ALTERAÇÕES DE SETUPS SE USUÁRIO TIVER BATALHA AGENDADA
 BOLAR RECOMPENSAS PARA LÍDERES DE GINÁSIO
 
 BOLAR RECOMPENSAS PARA PARTICIPANTES DE BATALHAS
-
-IMPLEMENTAR FILA COM REQUISIÇÕES POST PARA https://server.streamavatars.com/ext/updates/33699502
-  • Salvar todos os pokemons comprados dos usuários a partir das respostas dessa requisição
