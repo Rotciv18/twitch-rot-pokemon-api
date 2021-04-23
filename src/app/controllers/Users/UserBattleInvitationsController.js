@@ -34,7 +34,7 @@ class UserBattleInvitationsController {
     const battleInvitations = await BattleInvitation.findAll({
       where: {
         [Op.or]: [{ challenger_id: user.id }, { challenged_id: user.id }],
-        is_scheduled: false,
+        status: 'waiting',
       },
       include: ['challenger', 'challenged'],
     });
@@ -67,7 +67,7 @@ class UserBattleInvitationsController {
         .status(401)
         .json({ message: 'Only the challenged user can schedule this battle' });
     }
-    if (battleInvitation.is_scheduled) {
+    if (battleInvitation.status === 'scheduled') {
       return res.status(401).json({ message: 'Battle was already scheduled' });
     }
 
@@ -80,7 +80,7 @@ class UserBattleInvitationsController {
         position_id: battleInvitation.position_id,
       });
 
-      await battleInvitation.update({ is_scheduled: true });
+      await battleInvitation.update({ status: 'scheduled' });
 
       return res.json(battleSchedule);
     } catch (error) {

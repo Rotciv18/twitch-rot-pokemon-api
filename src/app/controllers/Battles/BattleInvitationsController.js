@@ -2,12 +2,12 @@ import BattleInvitation from '../../models/BattleInvitation';
 
 class BattleInvitationsController {
   async index(req, res) {
-    const { is_scheduled } = req.query;
+    const { status } = req.query;
     let battleInvitations;
 
-    if (is_scheduled) {
+    if (status) {
       battleInvitations = await BattleInvitation.findAll({
-        where: { is_scheduled },
+        where: { status },
         include: ['challenger', 'challenged'],
       });
     } else {

@@ -1,3 +1,7 @@
+import { Op } from 'sequelize';
+import BattleInvitation from '../models/BattleInvitation';
+import BattleSchedule from '../models/BattleSchedule';
+
 export const hasPokeballs = (user, ballType) => {
   switch (ballType) {
     case '!ball':
@@ -28,4 +32,33 @@ export const removeBall = (user, ballType) => {
     default:
       return null;
   }
+};
+
+export const canSetup = async (user) => {
+  // Has a position?
+  if (user.position_id) {
+    return [false, 'position'];
+  }
+  // Has a battle invitation?
+  const battleInvitation = await BattleInvitation.findOne({
+    where: {
+      status: 'waiting',
+      [Op.or]: [{ challenger_id: user.id }, { challenged_id: user.id }],
+    },
+  });
+  if (battleInvitation) {
+    return [false, 'battle_invitation'];
+  }
+  // Has a battle scheduled?
+  const battleSchedule = await BattleSchedule.findOne({
+    where: {
+      [Op.or]: [{ challenger_id: user.id }, { challenged_id: user.id }],
+      battle_date: { [Op.gte]: Date.now() },
+    },
+  });
+  if (battleSchedule) {
+    return [false, 'battle_schedule'];
+  }
+
+  return [true, null];
 };

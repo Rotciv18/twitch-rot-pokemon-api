@@ -26,14 +26,13 @@ module.exports = {
         references: { model: 'positions', key: 'id' },
         allowNull: true,
       },
+      status: {
+        type: Sequelize.ENUM('waiting', 'scheduled'),
+        defaultValue: 'waiting',
+      },
       challenge_type: {
         type: Sequelize.ENUM('casual', 'position'),
         defaultValue: 'casual',
-      },
-      is_scheduled: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
       },
       created_at: Sequelize.DATE,
       updated_at: Sequelize.DATE,

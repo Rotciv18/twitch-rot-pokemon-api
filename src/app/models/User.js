@@ -30,6 +30,11 @@ class User extends Model {
       foreignKey: 'setup_id',
       as: 'setup',
     });
+
+    this.belongsTo(models.Position, {
+      foreignKey: 'position_id',
+      as: 'position',
+    });
   }
 }
 

@@ -1,6 +1,8 @@
 import Setup from '../../models/Setup';
 import Pokemon from '../../models/Pokemon';
 
+import { canSetup } from '../../services/UserServices';
+
 class SetupsController {
   async index(req, res) {
     const { user } = req;
@@ -12,6 +14,12 @@ class SetupsController {
   async store(req, res) {
     const { pokemonId } = req.params;
     const { user } = req;
+
+    const [canUserSetup, reason] = await canSetup(user);
+    if (!canUserSetup) {
+      return res.status(401).json({ message: `User have one ${reason}` });
+    }
+
     const pokemon = await Pokemon.findByPk(pokemonId);
 
     if (pokemon.setup_id === user.setup_id) {
@@ -34,6 +42,11 @@ class SetupsController {
   async delete(req, res) {
     const { pokemonId } = req.params;
     const { user } = req;
+
+    const [canUserSetup, reason] = await canSetup(user);
+    if (!canUserSetup) {
+      return res.status(401).json({ message: `User have one ${reason}` });
+    }
 
     await Pokemon.update({ setup_id: null }, { where: { id: pokemonId } });
 

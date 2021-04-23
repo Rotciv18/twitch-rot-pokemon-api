@@ -24,6 +24,11 @@ class BattleSchedule extends Model {
       as: 'challenged',
     });
 
+    this.belongsTo(models.User, {
+      foreignKey: 'winner_id',
+      as: 'winner',
+    });
+
     this.belongsTo(models.Position, {
       foreignKey: 'position_id',
       as: 'position',

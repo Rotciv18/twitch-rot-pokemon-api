@@ -6,7 +6,7 @@ class BattleInvitation extends Model {
       {
         challenger_available_dates: Sequelize.ARRAY(Sequelize.DATE),
         challenge_type: Sequelize.ENUM('casual', 'position'),
-        is_scheduled: Sequelize.BOOLEAN,
+        status: Sequelize.ENUM('waiting', 'scheduled'),
       },
       { sequelize, tableName: 'battle_invitations' }
     );
