@@ -1,5 +1,6 @@
 import BattleSchedule from '../../models/BattleSchedule';
 import Position from '../../models/Position';
+import User from '../../models/User';
 
 class BattleSchedulesController {
   async update(req, res) {
@@ -23,6 +24,10 @@ class BattleSchedulesController {
       await Position.update(
         { user_id: winner_id },
         { where: { id: battleSchedule.position_id } }
+      );
+      await User.update(
+        { position_id: battleSchedule.position_id },
+        { where: { id: winner_id } }
       );
     }
 
