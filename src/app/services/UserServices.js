@@ -1,0 +1,31 @@
+export const hasPokeballs = (user, ballType) => {
+  switch (ballType) {
+    case '!ball':
+      return user.pokeballs > 0;
+
+    case '!great':
+      return user.great_balls > 0;
+
+    case '!ultra':
+      return user.ultra_balls > 0;
+
+    default:
+      return null;
+  }
+};
+
+export const removeBall = (user, ballType) => {
+  switch (ballType) {
+    case '!ball':
+      return user.update({ pokeballs: user.pokeballs - 1 });
+
+    case '!great':
+      return user.update({ great_balls: user.great_balls - 1 });
+
+    case '!ultra':
+      return user.update({ ultra_balls: user.ultra_balls - 1 });
+
+    default:
+      return null;
+  }
+};

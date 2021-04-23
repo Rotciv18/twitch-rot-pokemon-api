@@ -1,6 +1,7 @@
 import '../src/database';
 import { triggerAlert } from '../src/app/services/StreamLabs/Alerts';
 import alertPokemon from '../src/jobs/alertPokemon';
+import twitchClient from '../src/twitchClient';
 
 async function triggerNow() {
   // const status = await triggerAlert({
@@ -15,5 +16,6 @@ async function triggerNow() {
 }
 
 setTimeout(() => {
+  twitchClient.connect();
   triggerNow();
 }, 500);

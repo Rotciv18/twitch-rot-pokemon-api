@@ -10,11 +10,16 @@ import {
   giftPokemon,
   chatMessage,
 } from '../app/services/Twitch/twitchServices';
+import { hasPokeballs, removeBall } from '../app/services/UserServices';
 
 import capitalize from '../helpers/capitalize';
 
 function isBall(pokeballString) {
-  return pokeballString === '!ball' || '!great' || '!ultra';
+  return (
+    pokeballString === '!ball' ||
+    pokeballString === '!great' ||
+    pokeballString === '!ultra'
+  );
 }
 
 function ballChance(ballType) {
@@ -27,22 +32,6 @@ function ballChance(ballType) {
 
     case '!ultra':
       return 75;
-
-    default:
-      return null;
-  }
-}
-
-function hasPokeballs(user, ballType) {
-  switch (ballType) {
-    case '!ball':
-      return user.pokeballs > 0;
-
-    case '!great':
-      return user.great_balls > 0;
-
-    case '!ultra':
-      return user.ultra_balls > 0;
 
     default:
       return null;
@@ -183,7 +172,7 @@ export default async () => {
           twitchClient.emoteonlyoff(channelConfig.channelName);
           chatMessage(`${userDisplayName} não tem pokebolas!`);
 
-          // User has Pokemons
+          // User has the Pokemon
         } else if (hasPokemon) {
           isInCatch = false;
           twitchClient.emoteonlyoff(channelConfig.channelName);
@@ -193,6 +182,8 @@ export default async () => {
 
           // User catched the pokemon
         } else if (roll <= ballChance(ballType)) {
+          removeBall(user, ballType);
+
           disconnected = true;
           setTimeout(() => {
             chatMessage('1...');
@@ -239,6 +230,8 @@ export default async () => {
 
           // User missed the pokemon
         } else {
+          removeBall(user, ballType);
+
           setTimeout(() => {
             chatMessage('1...');
             setTimeout(() => {
@@ -249,7 +242,9 @@ export default async () => {
                 chatMessage(
                   `${capitalize(
                     pokemonData.name
-                  )} escapou da pokebola de ${userDisplayName} (${ballChance}% de chance de captura).`
+                  )} escapou da pokebola de ${userDisplayName} (${ballChance(
+                    ballType
+                  )}% de chance de captura).`
                 );
 
                 await twitchClient.emoteonlyoff(channelConfig.channelName);

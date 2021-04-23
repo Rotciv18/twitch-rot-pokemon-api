@@ -288,14 +288,12 @@ class UserPokemonsController {
         .json({ message: "Pokemon can't evolve with this item" });
     }
 
-    console.log(!(await hasEvolvedPokemon(newEvolution, user)));
-
     let learnedMove;
     let evolvedTo;
 
     if (newEvolution && !(await hasEvolvedPokemon(newEvolution, user))) {
       const evolutionPokemonData = await PokemonData.findOne({
-        name: newEvolution.name,
+        where: { name: newEvolution.name },
       });
 
       // Pokemon irá aprender novo move ao evoluir
@@ -367,7 +365,7 @@ class UserPokemonsController {
 
     await pokemon.save();
 
-    return res.json(pokemon, evolvedTo, learnedMove);
+    return res.json({ pokemon, evolvedTo, learnedMove });
   }
 }
 
