@@ -1,10 +1,10 @@
-import fillUsersQueue from '../src/queues/fillUsersPokemonQueue';
+import checkStreamAvatarsQueue from '../src/queues/checkStreamAvatarsQueue';
 
-fillUsersQueue.add(
+checkStreamAvatarsQueue.add(
   {},
   {
     repeat: {
-      every: 300000,
+      every: 500,
     },
   }
 );

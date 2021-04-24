@@ -118,7 +118,8 @@ class UserPokemonsController {
       // Pokemon irá aprender novo move ao evoluir
       const newEvolutionMove = willLearnNewMoveEvolved(
         evolutionPokemonData,
-        newLevel
+        newLevel,
+        pokemon
       );
       if (newEvolutionMove) {
         if (pokemon.moves.length === 4) {
@@ -215,6 +216,16 @@ class UserPokemonsController {
     const pokemon = await Pokemon.findByPk(pokemonId, {
       include: 'pokemon_data',
     });
+
+    const alreadyLearned = pokemon.moves.find(
+      (move) => move.name === moveData.move_name
+    );
+    if (alreadyLearned) {
+      return res
+        .status(401)
+        .json({ message: 'Pokemon already learned this move' });
+    }
+
     const canLearn = pokemon.pokemon_data.can_learn.find(
       (move) => move === newMove.name
     );
