@@ -5,12 +5,14 @@ export const willLearnNewMove = async (pokemon, newLevel) => {
     (move) => move.learnAt === newLevel
   );
 
-  const alreadyLearned = pokemon.moves.find(
-    (move) => move.name === newMove.name
-  );
+  if (newMove) {
+    const alreadyLearned = pokemon.moves.find(
+      (move) => move.name === newMove.name
+    );
 
-  if (alreadyLearned) {
-    return null;
+    if (alreadyLearned) {
+      return null;
+    }
   }
 
   return newMove;

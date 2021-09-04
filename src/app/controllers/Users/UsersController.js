@@ -1,8 +1,15 @@
+import { getUserPoints } from '../../services/StreamElements/Points';
+
 class UsersController {
   async index(req, res) {
     const { user } = req;
 
-    return res.json(user);
+    const points = await getUserPoints(user.username);
+
+    return res.json({
+      ...user.dataValues,
+      points,
+    });
   }
 
   async update(req, res) {

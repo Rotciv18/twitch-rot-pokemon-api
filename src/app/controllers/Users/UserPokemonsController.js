@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import PokemonData from '../../models/PokemonData';
 import MoveData from '../../models/MoveData';
 import Pokemon from '../../models/Pokemon';
@@ -21,6 +22,18 @@ import capitalize from '../../../helpers/capitalize';
 
 const LEVEL_UP_COST = 1000;
 
+function pokemonsSetupWhereQuery(setup, userId) {
+  if (setup === undefined || setup === null) {
+    return {
+      user_id: userId,
+    };
+  }
+  return {
+    user_id: userId,
+    setup_id: setup === false ? { [Op.ne]: null } : null,
+  };
+}
+
 class UserPokemonsController {
   async index(req, res) {
     const { pokemonId } = req.params;
@@ -30,7 +43,13 @@ class UserPokemonsController {
       return res.status(400).json({ message: 'User not found' });
     }
 
-    const pokemon = await Pokemon.findByPk(pokemonId);
+    const pokemon = await Pokemon.findByPk(pokemonId, {
+      include: {
+        model: PokemonData,
+        as: 'pokemon_data',
+        attributes: ['sprite'],
+      },
+    });
 
     return res.json(pokemon);
   }
@@ -40,10 +59,17 @@ class UserPokemonsController {
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
+    const { setup } = req.query;
+    console.log(pokemonsSetupWhereQuery(setup, user.id));
     const pokemons = await Pokemon.findAll({
-      where: { user_id: user.id },
-      include: 'pokemon_data',
-      order: [['pokemon_data', 'id', 'asc']],
+      where: pokemonsSetupWhereQuery(setup, user.id),
+      include: {
+        model: PokemonData,
+        as: 'pokemon_data',
+        attributes: ['sprite'],
+      },
+      order: [['level', 'desc']],
+      attributes: ['id', 'level', 'name'],
     });
 
     return res.json(pokemons);
@@ -110,9 +136,12 @@ class UserPokemonsController {
     const newEvolution = await willEvolve(pokemon, newLevel);
 
     // Nova evolução ao Level-Up
-    if (newEvolution && !hasEvolvedPokemon(newEvolution, user)) {
-      const evolutionPokemonData = await PokemonData.findOne({
-        name: newEvolution.name,
+    let previousPokemon;
+    let evolutionPokemonData;
+    if (newEvolution && !(await hasEvolvedPokemon(newEvolution, user))) {
+      previousPokemon = pokemon.name;
+      evolutionPokemonData = await PokemonData.findOne({
+        where: { name: newEvolution.name },
       });
 
       // Pokemon irá aprender novo move ao evoluir
@@ -183,17 +212,23 @@ class UserPokemonsController {
     user.level += 1;
 
     try {
-      await pokemon.save();
-      await user.save();
-      await addPoints(user.username, -LEVEL_UP_COST);
+      await Promise.all([
+        pokemon.save(),
+        user.save(),
+        addPoints(user.username, -LEVEL_UP_COST),
+      ]);
       return res.json({
         pokemon: {
+          id: pokemon.id,
           name: pokemon.name,
           level: pokemon.level,
           moves: pokemon.moves,
+          pokemon_data: evolvedTo ? evolutionPokemonData : pokemon.pokemon_data,
         },
         learnedMove,
         evolvedTo,
+        newLevel,
+        previousPokemon,
       });
     } catch (error) {
       return res.status(500).json(error);

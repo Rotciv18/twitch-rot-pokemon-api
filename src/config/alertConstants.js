@@ -3,7 +3,7 @@ export default {
   pokemonEvolvedSoundUrl:
     'https://uploads.twitchalerts.com/000/033/699/502/evolution.mp3',
   pokemonCatchGifUrl:
-    'https://uploads.twitchalerts.com/000/033/699/502/catchado.gif',
+    'https://uploads.twitchalerts.com/000/033/699/502/catchadinho.gif',
   pokemonCatchSoundUrl:
     'https://uploads.twitchalerts.com/000/033/699/502/catchmp3.mp3',
 };

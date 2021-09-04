@@ -12,6 +12,8 @@ import {
 } from '../app/services/Twitch/twitchServices';
 import { hasPokeballs, removeBall } from '../app/services/UserServices';
 
+import alertPokemonQueue from '../queues/alertPokemonQueue';
+
 import capitalize from '../helpers/capitalize';
 
 function isBall(pokeballString) {
@@ -38,7 +40,14 @@ function ballChance(ballType) {
   }
 }
 
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
 export default async () => {
+  const delay = getRandomInt(2000, 4000) * 60;
   const commonPokemonIds = [
     1,
     4,
@@ -167,7 +176,9 @@ export default async () => {
         );
 
         // User has pokeballs
-        if (!hasPokeballs(user, ballType)) {
+
+        // if (!hasPokeballs(user, ballType)) {
+        if (false) {
           isInCatch = false;
           twitchClient.emoteonlyoff(channelConfig.channelName);
           chatMessage(`${userDisplayName} não tem pokebolas!`);
@@ -223,6 +234,8 @@ export default async () => {
                     'message',
                     twitchClient._events.message
                   );
+
+                  alertPokemonQueue.add({}, { delay });
                 }, 500);
               }, 1000);
             }, 1000);
@@ -261,6 +274,7 @@ export default async () => {
       if (!disconnected) {
         chatMessage(`O ${capitalize(pokemonData.name)} fugiu!`);
         twitchClient.removeListener('message', twitchClient._events.message);
+        alertPokemonQueue.add({}, { delay });
       }
     }, 45000);
   }

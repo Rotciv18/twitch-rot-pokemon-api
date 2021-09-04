@@ -1,3 +1,6 @@
+import jwt from 'jsonwebtoken';
+import User from '../models/User';
+
 export default async (req, res, next) => {
   const auth = req.headers.authorization;
 
@@ -6,10 +9,15 @@ export default async (req, res, next) => {
   }
 
   const [, token] = auth.split(' ');
+  const decoded = jwt.decode(token);
 
-  if (token !== process.env.AUTH_TOKEN) {
-    return res.status(401).json({ message: 'Invalid token' });
+  const user = await User.findByPk(decoded.user_id);
+
+  if (!user) {
+    return res.status(401).json({ message: 'token invalid' });
   }
+
+  req.user = user;
 
   next();
 };

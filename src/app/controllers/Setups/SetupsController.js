@@ -6,9 +6,14 @@ import { canSetup } from '../../services/UserServices';
 class SetupsController {
   async index(req, res) {
     const { user } = req;
-    const setup = await Setup.findByPk(user.setup_id, { include: 'pokemons' });
 
-    return res.json({ pokemons: setup.pokemons });
+    const pokemons = await Pokemon.findAll({
+      where: { setup_id: user.setup_id },
+      order: [['level', 'desc']],
+      include: 'pokemon_data',
+    });
+
+    return res.json({ pokemons });
   }
 
   async store(req, res) {

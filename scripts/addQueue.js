@@ -1,10 +1,6 @@
-import checkStreamAvatarsQueue from '../src/queues/checkStreamAvatarsQueue';
+import alertPokemonQueue from '../src/queues/alertPokemonQueue';
+import fillUsersPokemonQueue from '../src/queues/fillUsersPokemonQueue';
 
-checkStreamAvatarsQueue.add(
-  {},
-  {
-    repeat: {
-      every: 500,
-    },
-  }
-);
+alertPokemonQueue.add();
+fillUsersPokemonQueue.add({}, { repeat: { every: 300000 } });
+console.log('done');
