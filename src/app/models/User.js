@@ -13,6 +13,8 @@ class User extends Model {
         pokeballs: Sequelize.INTEGER,
         great_balls: Sequelize.INTEGER,
         ultra_balls: Sequelize.INTEGER,
+        duel_tickets: Sequelize.INTEGER,
+        badges: Sequelize.INTEGER,
       },
       { sequelize, tableName: 'users' }
     );

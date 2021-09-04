@@ -25,6 +25,16 @@ module.exports = {
         allowNull: false,
         defaultValue: 0,
       },
+      duel_tickets: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      badges: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
       ultra_balls: {
         type: Sequelize.INTEGER,
         allowNull: false,
