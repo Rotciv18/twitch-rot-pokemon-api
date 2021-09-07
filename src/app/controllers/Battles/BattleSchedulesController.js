@@ -1,8 +1,27 @@
+import { Op } from 'sequelize';
+
 import BattleSchedule from '../../models/BattleSchedule';
 import Position from '../../models/Position';
 import User from '../../models/User';
 
 class BattleSchedulesController {
+  async index(req, res) {
+    const { user } = req;
+
+    const battleSchedules = await BattleSchedule.findAll({
+      where: {
+        challenger_id: {
+          [Op.ne]: user.id,
+        },
+        challenged_id: {
+          [Op.ne]: user.id,
+        },
+      },
+    });
+
+    return res.json(battleSchedules);
+  }
+
   async update(req, res) {
     const { schedule_id } = req.params;
 

@@ -5,6 +5,7 @@ import UserBattleSchedulesController from '../controllers/Users/UserBattleSchedu
 const routes = new Router();
 
 routes.get('/invitations', UserBattleInvitationsController.index);
+routes.get('/invitations/sent', UserBattleInvitationsController.sent);
 routes.post('/invitations', UserBattleInvitationsController.store);
 routes.post(
   '/invitations/:invitation_id/schedule',
