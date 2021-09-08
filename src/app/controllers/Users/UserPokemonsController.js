@@ -60,7 +60,6 @@ class UserPokemonsController {
       return res.status(400).json({ message: 'User not found' });
     }
     const { setup } = req.query;
-    console.log(pokemonsSetupWhereQuery(setup, user.id));
     const pokemons = await Pokemon.findAll({
       where: pokemonsSetupWhereQuery(setup, user.id),
       include: {

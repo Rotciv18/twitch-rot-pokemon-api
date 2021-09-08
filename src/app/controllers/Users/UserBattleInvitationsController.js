@@ -11,13 +11,28 @@ class UserBattleInvitationsController {
     const { user } = req;
     const { challenged_id, position_id, challenge_type } = req.body;
 
-    await InvitationValidation.validate(req.body).catch((error) =>
-      res.status(401).json(error.errors.join())
-    );
+    if (user.duel_tickets < 1) {
+      return res
+        .status(401)
+        .json({ message: 'User does not have enough Duel Tickets' });
+    }
+
+    let validationError;
+    await InvitationValidation.validate(req.body).catch((error) => {
+      validationError = error.errors.join();
+      res.status(401).json(error.errors.join());
+    });
+    if (validationError) {
+      return res.status(401).json(validationError);
+    }
     if (user.id === challenged_id) {
       return res.status(401).json({ message: "Can't challenge yourself" });
     }
-    const position = await Position.findByPk(position_id);
+
+    let position;
+    if (challenge_type === 'position') {
+      position = await Position.findByPk(position_id);
+    }
     if (!position && challenge_type === 'position') {
       return res.status(400).json({ message: 'Position does not exist' });
     }
@@ -26,6 +41,8 @@ class UserBattleInvitationsController {
       challenger_id: user.id,
       ...req.body,
     });
+    user.duel_tickets -= 1;
+    await user.save();
 
     return res.json(battleInvitation);
   }
