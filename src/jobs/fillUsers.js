@@ -3,6 +3,7 @@ import PokemonData from '../app/models/PokemonData';
 import { userData, twitchViewerId } from '../helpers/StreamAvatarsData';
 import Pokemon from '../app/models/Pokemon';
 import Setup from '../app/models/Setup';
+import twitchApi from '../app/services/twitchApi';
 
 export default async () => {
   console.log('EXECUTING FILLUSERS NOW:');
@@ -12,14 +13,25 @@ export default async () => {
   const promises = Object.entries(twitchViewersId).map(
     async ([twitch_id, username]) => {
       const foundUser = await User.findByPk(twitch_id, { include: 'pokemons' });
+      const userTwitchResponse = await twitchApi.get(
+        `/users?login=${username}`
+      );
+      const { profile_image_url } = userTwitchResponse.data.data[0];
+
       const user =
-        foundUser || (await User.create({ id: twitch_id, username }));
+        foundUser ||
+        (await User.create({
+          id: twitch_id,
+          username,
+          img_url: profile_image_url,
+        }));
+
       if (!foundUser) {
         const setup = await Setup.create({ user_id: user.id });
-        user.update({ setup_id: setup.id });
+        user.update({ setup_id: setup.id, img_url: profile_image_url });
       }
       if (user.username !== username) {
-        await user.update({ username });
+        await user.update({ username, img_url: profile_image_url });
       }
 
       const innerPromises = Object.keys(

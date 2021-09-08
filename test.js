@@ -1,13 +1,10 @@
-import getStreamAvatarsUserData from './src/helpers/getStreamAvatarsUserData';
 import 'dotenv/config';
+import twitchApi from './src/app/services/twitchApi';
 
 const printae = async () => {
-  const userData = await getStreamAvatarsUserData();
+  const response = await twitchApi.get('/users?login=rotciv__');
 
-  const arrayzin = Object.keys(userData.factordonald.ownedObjects.avatars);
-
-  arrayzin.forEach((element) => console.log(element));
-  // console.log(userData.factordonald);
+  console.log(response.data);
 };
 
 printae();

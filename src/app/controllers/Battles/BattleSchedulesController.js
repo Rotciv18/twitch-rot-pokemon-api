@@ -17,6 +17,7 @@ class BattleSchedulesController {
           [Op.ne]: user.id,
         },
       },
+      include: ['challenger', 'challenged', 'position'],
     });
 
     return res.json(battleSchedules);

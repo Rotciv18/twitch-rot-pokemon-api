@@ -10,7 +10,7 @@ class UserBattleSchedulesController {
         [Op.or]: [{ challenger_id: user.id }, { challenged_id: user.id }],
         winner_id: null,
       },
-      include: ['challenger', 'challenged'],
+      include: ['challenger', 'challenged', 'position'],
     });
 
     return res.json(battleSchedules);
