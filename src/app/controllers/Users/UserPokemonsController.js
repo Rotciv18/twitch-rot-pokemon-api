@@ -87,10 +87,15 @@ class UserPokemonsController {
     let learnedMove;
 
     const pokemon = await Pokemon.findByPk(pokemonId, {
-      include: 'pokemon_data',
+      include: ['pokemon_data', 'setup'],
     });
     if (!pokemon) {
       return res.status(400).json({ message: 'Pokemon not found' });
+    }
+    if (user.position && pokemon.setup) {
+      return res
+        .status(401)
+        .json({ message: "Can't level up pokemon that's in position Setup" });
     }
 
     const newLevel = pokemon.level + 1;

@@ -3,6 +3,7 @@ import User from '../../models/User';
 import BattleInvitation from '../../models/BattleInvitation';
 import BattleSchedule from '../../models/BattleSchedule';
 import { getUserPoints } from '../../services/StreamElements/Points';
+import Setup from '../../models/Setup';
 
 class UsersController {
   async me(req, res) {
@@ -53,11 +54,18 @@ class UsersController {
       const minLevel = Math.max(user.level - parseInt(levelDiff, 10), 5);
 
       users = await User.findAll({
-        include: [],
+        include: {
+          model: Setup,
+          as: 'setup',
+          include: ['pokemons'],
+        },
         where: {
           id: {
             [Op.notIn]: forbiddenUsers,
             [Op.ne]: user.id,
+          },
+          '$setup.pokemons.id$': {
+            [Op.ne]: null,
           },
           level: {
             [Op.gte]: minLevel,

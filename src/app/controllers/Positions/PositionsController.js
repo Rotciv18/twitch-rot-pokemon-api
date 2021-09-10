@@ -10,14 +10,14 @@ class PositionsController {
       include: {
         model: User,
         as: 'user',
-        attributes: ['username'],
+        attributes: ['username', 'img_url', 'id'],
         include: {
           model: Setup,
           as: 'setup',
           include: {
             model: Pokemon,
             as: 'pokemons',
-            attributes: ['name'],
+            attributes: ['name', 'id'],
             include: {
               model: PokemonData,
               as: 'pokemon_data',
@@ -26,6 +26,7 @@ class PositionsController {
           },
         },
       },
+      order: [['id', 'ASC']],
     });
 
     return res.json(positions);

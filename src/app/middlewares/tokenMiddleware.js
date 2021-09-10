@@ -11,7 +11,7 @@ export default async (req, res, next) => {
   const [, token] = auth.split(' ');
   const decoded = jwt.decode(token);
 
-  const user = await User.findByPk(decoded.user_id);
+  const user = await User.findByPk(decoded.user_id, { include: ['position'] });
 
   if (!user) {
     return res.status(401).json({ message: 'token invalid' });

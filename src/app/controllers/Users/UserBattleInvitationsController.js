@@ -11,7 +11,9 @@ class UserBattleInvitationsController {
     const { user } = req;
     const { challenged_id, position_id, challenge_type } = req.body;
 
-    if (user.duel_tickets < 1) {
+    const hasTickets =
+      challenge_type === 'casual' ? user.duel_tickets : user.badges;
+    if (!hasTickets) {
       return res
         .status(401)
         .json({ message: 'User does not have enough Duel Tickets' });
@@ -20,7 +22,6 @@ class UserBattleInvitationsController {
     let validationError;
     await InvitationValidation.validate(req.body).catch((error) => {
       validationError = error.errors.join();
-      res.status(401).json(error.errors.join());
     });
     if (validationError) {
       return res.status(401).json(validationError);
