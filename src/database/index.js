@@ -10,6 +10,7 @@ import Position from '../app/models/Position';
 import BattleInvitation from '../app/models/BattleInvitation';
 import BattleSchedule from '../app/models/BattleSchedule';
 import Stone from '../app/models/Stone';
+import Pokeball from '../app/models/Pokeball';
 
 const models = [
   MoveData,
@@ -21,6 +22,7 @@ const models = [
   BattleSchedule,
   Position,
   Stone,
+  Pokeball,
 ];
 
 class Database {

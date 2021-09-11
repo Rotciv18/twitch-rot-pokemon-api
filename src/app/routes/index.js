@@ -9,6 +9,7 @@ import PositionsRoutes from './PositionsRoutes';
 import UserBattlesRoutes from './UserBattlesRoutes';
 import BattlesRoutes from './BattlesRoutes';
 import UserPositionsRoutes from './UserPositionsRoutes';
+import PokeballsRoutes from './PokeballsRoutes';
 
 const routes = new Router();
 
@@ -24,5 +25,7 @@ routes.use('/api/setups', SetupsRoutes);
 
 routes.use('/api/users/battles', UserBattlesRoutes);
 routes.use('/api/users/positions', UserPositionsRoutes);
+
+routes.use('/api/pokeballs', PokeballsRoutes);
 
 export default routes;
