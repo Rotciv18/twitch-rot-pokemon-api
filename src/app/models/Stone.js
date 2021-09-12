@@ -5,6 +5,7 @@ class Stone extends Model {
     super.init(
       {
         name: Sequelize.STRING,
+        img_url: Sequelize.STRING,
       },
       { sequelize, tableName: 'stones' }
     );

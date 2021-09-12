@@ -16,9 +16,19 @@ module.exports = {
     });
 
     await queryInterface.bulkInsert('stones', [
-      { name: 'thunder-stone' },
-      { name: 'water-stone' },
-      { name: 'fire-stone' },
+      {
+        name: 'thunder-stone',
+        img_url: 'https://www.pngkit.com/png/full/13-131063_stone-png.png',
+      },
+      {
+        name: 'water-stone',
+        img_url: 'https://www.nicepng.com/png/full/206-2063044_stones-png.png',
+      },
+      {
+        name: 'fire-stone',
+        img_url:
+          'https://www.seekpng.com/png/full/321-3215934_firestone-logo-png.png',
+      },
     ]);
   },
   down: async (queryInterface) => {
