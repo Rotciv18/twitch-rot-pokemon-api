@@ -56,20 +56,36 @@ class UserPokemonsController {
 
   async list(req, res) {
     const { user } = req;
+    const { evolvesWithStone } = req.query;
+
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
     const { setup } = req.query;
-    const pokemons = await Pokemon.findAll({
-      where: pokemonsSetupWhereQuery(setup, user.id),
+    let pokemons = await Pokemon.findAll({
       include: {
         model: PokemonData,
         as: 'pokemon_data',
-        attributes: ['sprite'],
+        attributes: ['sprite', 'evolutions'],
+      },
+      where: {
+        ...pokemonsSetupWhereQuery(setup, user.id),
       },
       order: [['level', 'desc']],
       attributes: ['id', 'level', 'name'],
     });
+
+    if (evolvesWithStone) {
+      pokemons = pokemons.filter((pokemon) => {
+        let canEvolve = false;
+        pokemon.pokemon_data.evolutions.forEach((evolution) => {
+          if (evolution.withItem === evolvesWithStone) {
+            canEvolve = true;
+          }
+        });
+        return canEvolve;
+      });
+    }
 
     return res.json(pokemons);
   }

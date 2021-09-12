@@ -29,6 +29,6 @@ routes.use('/api/users/positions', UserPositionsRoutes);
 
 routes.use('/api/pokeballs', PokeballsRoutes);
 
-routes.use('/api;stones', StonesRoutes);
+routes.use('/api/stones', StonesRoutes);
 
 export default routes;
