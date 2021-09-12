@@ -6,6 +6,7 @@ class Stone extends Model {
       {
         name: Sequelize.STRING,
         img_url: Sequelize.STRING,
+        price: Sequelize.INTEGER,
       },
       { sequelize, tableName: 'stones' }
     );
