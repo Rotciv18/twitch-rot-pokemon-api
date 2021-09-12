@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import PokemonData from '../../models/PokemonData';
 import MoveData from '../../models/MoveData';
 import Pokemon from '../../models/Pokemon';
+import Stone from '../../models/Stone';
 import { canLevelUpOrEvolve } from '../../services/UserServices';
 
 import {
@@ -345,19 +346,24 @@ class UserPokemonsController {
 
   async stoneEvolve(req, res) {
     const { user } = req;
-    const { pokemonId, stoneName } = req.params;
+    const { pokemonId, stoneId } = req.params;
 
     const pokemon = await Pokemon.findByPk(pokemonId, {
       include: 'pokemon_data',
     });
-    if (user.position && pokemon.setup) {
+
+    const stone = await Stone.findByPk(stoneId);
+
+    const [canEvolve, reason] = canLevelUpOrEvolve(user, pokemon);
+
+    if (!canEvolve) {
       return res
         .status(401)
-        .json({ message: "Can't level up pokemon that's in position Setup" });
+        .json({ message: `User have one ${reason}`, hasOne: reason });
     }
 
     const newEvolution = pokemon.pokemon_data.evolutions.find(
-      (evolution) => evolution.withItem === stoneName
+      (evolution) => evolution.withItem === stone.name
     );
 
     if (!newEvolution) {
