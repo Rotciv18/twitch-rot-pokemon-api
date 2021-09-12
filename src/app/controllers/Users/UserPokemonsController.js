@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import PokemonData from '../../models/PokemonData';
 import MoveData from '../../models/MoveData';
 import Pokemon from '../../models/Pokemon';
-import Stone from '../../models/Stone';
+import { canLevelUpOrEvolve } from '../../services/UserServices';
 
 import {
   willLearnNewMove,
@@ -114,6 +114,14 @@ class UserPokemonsController {
         .json({ message: "Can't level up pokemon that's in position Setup" });
     }
 
+    const [canLevelUp, reason] = await canLevelUpOrEvolve(user, pokemon);
+
+    if (!canLevelUp) {
+      return res
+        .status(401)
+        .json({ message: `User have one ${reason}`, hasOne: reason });
+    }
+
     const newLevel = pokemon.level + 1;
 
     const newMove = await willLearnNewMove(pokemon, newLevel);
@@ -123,7 +131,7 @@ class UserPokemonsController {
       if (pokemon.moves.length === 4) {
         const { deleteMove } = req.query;
         if (!deleteMove) {
-          return res.status(400).json({
+          return res.status(300).json({
             message: 'Need to choose a move to delete',
             newMove,
             moves: pokemon.moves,
@@ -337,15 +345,19 @@ class UserPokemonsController {
 
   async stoneEvolve(req, res) {
     const { user } = req;
-    const { pokemonId, stoneId } = req.params;
+    const { pokemonId, stoneName } = req.params;
 
     const pokemon = await Pokemon.findByPk(pokemonId, {
       include: 'pokemon_data',
     });
-    const stone = await Stone.findByPk(stoneId);
+    if (user.position && pokemon.setup) {
+      return res
+        .status(401)
+        .json({ message: "Can't level up pokemon that's in position Setup" });
+    }
 
     const newEvolution = pokemon.pokemon_data.evolutions.find(
-      (evolution) => evolution.withItem === stone.name
+      (evolution) => evolution.withItem === stoneName
     );
 
     if (!newEvolution) {
@@ -371,7 +383,7 @@ class UserPokemonsController {
         if (pokemon.moves.length === 4) {
           const { deleteMove } = req.query;
           if (!deleteMove) {
-            return res.status(400).json({
+            return res.status(300).json({
               message: 'Need to choose a move to delete',
               newEvolutionMove,
               moves: pokemon.moves,

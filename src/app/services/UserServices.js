@@ -62,3 +62,45 @@ export const canSetup = async (user) => {
 
   return [true, null];
 };
+
+export const canLevelUpOrEvolve = async (user, pokemon) => {
+  if (!user.setup.pokemons.length) {
+    return true;
+  }
+
+  // Is pokemon in setup?
+  const pokemonInSetup = user.setup.pokemons.find(
+    (pkm) => pkm.name === pokemon.name
+  );
+
+  // Has a position?
+  if (user.position_id && pokemonInSetup) {
+    return [false, 'position'];
+  }
+
+  if (pokemonInSetup) {
+    // Has a battle invitation?
+    const battleInvitation = await BattleInvitation.findOne({
+      where: {
+        status: 'waiting',
+        [Op.or]: [{ challenger_id: user.id }, { challenged_id: user.id }],
+      },
+    });
+    if (battleInvitation) {
+      return [false, 'battle_invitation'];
+    }
+
+    // Has a battle scheduled?
+    const battleSchedule = await BattleSchedule.findOne({
+      where: {
+        [Op.or]: [{ challenger_id: user.id }, { challenged_id: user.id }],
+        battle_date: { [Op.gte]: Date.now() },
+      },
+    });
+    if (battleSchedule) {
+      return [false, 'battle_schedule'];
+    }
+  }
+
+  return [true, null];
+};
