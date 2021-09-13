@@ -73,7 +73,7 @@ class UserPokemonsController {
         ...pokemonsSetupWhereQuery(setup, user.id),
       },
       order: [['level', 'desc']],
-      attributes: ['id', 'level', 'name'],
+      attributes: ['id', 'level', 'name', 'moves'],
     });
 
     if (evolvesWithStone) {
@@ -353,8 +353,13 @@ class UserPokemonsController {
     });
 
     const stone = await Stone.findByPk(stoneId);
+    const points = getUserPoints(user.username);
 
-    const [canEvolve, reason] = canLevelUpOrEvolve(user, pokemon);
+    if (points < stone.price) {
+      return res.status(401).json({ message: 'Not enough points' });
+    }
+
+    const [canEvolve, reason] = await canLevelUpOrEvolve(user, pokemon);
 
     if (!canEvolve) {
       return res
@@ -365,8 +370,9 @@ class UserPokemonsController {
     const newEvolution = pokemon.pokemon_data.evolutions.find(
       (evolution) => evolution.withItem === stone.name
     );
+    const newEvolutionData = await PokemonData.findByPk(newEvolution.id);
 
-    if (!newEvolution) {
+    if (!newEvolutionData) {
       return res
         .status(401)
         .json({ message: "Pokemon can't evolve with this item" });
@@ -375,15 +381,19 @@ class UserPokemonsController {
     let learnedMove;
     let evolvedTo;
 
-    if (newEvolution && !(await hasEvolvedPokemon(newEvolution, user))) {
+    if (
+      newEvolutionData &&
+      !(await hasEvolvedPokemon(newEvolutionData, user))
+    ) {
       const evolutionPokemonData = await PokemonData.findOne({
-        where: { name: newEvolution.name },
+        where: { name: newEvolutionData.name },
       });
 
       // Pokemon irá aprender novo move ao evoluir
       const newEvolutionMove = willLearnNewMoveEvolved(
         evolutionPokemonData,
-        pokemon.level
+        pokemon.level,
+        pokemon
       );
       if (newEvolutionMove) {
         if (pokemon.moves.length === 4) {
@@ -401,6 +411,7 @@ class UserPokemonsController {
             const moveToDelete = pokemon.moves.find(
               (move) => move.name === deleteMove
             );
+            console.log(deleteMove, moveToDelete);
             if (!moveToDelete) {
               return res
                 .status(400)
@@ -424,23 +435,23 @@ class UserPokemonsController {
       }
 
       // Gift pokemon to user
-      await giftPokemon(user.username, newEvolution.name);
+      await giftPokemon(user.username, newEvolutionData.name);
       await removePokemon(user.username, pokemon.name);
       triggerAlert({
         type: 'follow',
         message: `${capitalize(user.username)} evoluiu seu ${capitalize(
           pokemon.name
-        )} para um ${capitalize(newEvolution.name)}`,
+        )} para um ${capitalize(newEvolutionData.name)}`,
         image_href: alertConstants.pokemonEvolveGifUrl,
         sound_href: alertConstants.pokemonEvolvedSoundUrl,
         duration: 3500,
       });
 
       // Evolves
-      pokemon.pokemon_data_id = newEvolution.id;
-      pokemon.name = newEvolution.name;
+      pokemon.pokemon_data_id = newEvolutionData.id;
+      pokemon.name = newEvolutionData.name;
 
-      evolvedTo = newEvolution.name;
+      evolvedTo = newEvolutionData.name;
     } else {
       return res
         .status(401)
