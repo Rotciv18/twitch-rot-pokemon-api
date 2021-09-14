@@ -6,6 +6,7 @@ class MoveData extends Model {
       {
         name: Sequelize.STRING,
         move_name: Sequelize.STRING,
+        price: Sequelize.INTEGER,
       },
       { sequelize, tableName: 'move_datas' }
     );

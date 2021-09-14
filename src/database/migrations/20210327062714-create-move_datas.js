@@ -15,6 +15,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      price: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 5000,
+      },
       created_at: Sequelize.DATE,
       updated_at: Sequelize.DATE,
     });
