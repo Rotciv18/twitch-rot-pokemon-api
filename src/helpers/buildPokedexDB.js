@@ -56,11 +56,11 @@ function getPokemonMoves(pokemon) {
 }
 
 function getCanLearnMoves(pokemon) {
-  const moves = [];
+  let moves = '';
   pokemon.moves.forEach((move) => {
     move.version_group_details.every((vgd) => {
       if (vgd.version_group.name === 'red-blue') {
-        moves.push(move.move.name);
+        moves += `;${move.move.name}`;
         return false;
       }
       return true;

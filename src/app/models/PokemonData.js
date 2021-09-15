@@ -12,7 +12,7 @@ class PokemonData extends Model {
         sprite: Sequelize.STRING,
         moves: Sequelize.JSON,
         evolutions: Sequelize.JSON,
-        can_learn: Sequelize.ARRAY(Sequelize.STRING),
+        can_learn: Sequelize.STRING,
       },
       { sequelize, tableName: 'pokemon_datas' }
     );

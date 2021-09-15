@@ -35,6 +35,18 @@ function pokemonsSetupWhereQuery(setup, userId) {
   };
 }
 
+function pokemonsCanLearnWhereQuery(canLearn) {
+  if (canLearn) {
+    return {
+      '$pokemon_data.can_learn$': {
+        [Op.substring]: canLearn,
+      },
+    };
+  }
+
+  return null;
+}
+
 class UserPokemonsController {
   async index(req, res) {
     const { pokemonId } = req.params;
@@ -57,7 +69,7 @@ class UserPokemonsController {
 
   async list(req, res) {
     const { user } = req;
-    const { evolvesWithStone } = req.query;
+    const { evolvesWithStone, canLearn } = req.query;
 
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
@@ -71,6 +83,7 @@ class UserPokemonsController {
       },
       where: {
         ...pokemonsSetupWhereQuery(setup, user.id),
+        ...pokemonsCanLearnWhereQuery(canLearn),
       },
       order: [['level', 'desc']],
       attributes: ['id', 'level', 'name', 'moves'],
@@ -183,7 +196,7 @@ class UserPokemonsController {
         if (pokemon.moves.length === 4) {
           const { deleteMove } = req.query;
           if (!deleteMove) {
-            return res.status(400).json({
+            return res.status(300).json({
               message: 'Need to choose a move to delete',
               newEvolutionMove,
               moves: pokemon.moves,
@@ -267,6 +280,7 @@ class UserPokemonsController {
   async learnMove(req, res) {
     // TODO: Checar e cobrar pontos de usuário
 
+    const { user } = req;
     const { pokemonId } = req.params;
     const { moveId } = req.query;
     if (!moveId) {
@@ -276,6 +290,11 @@ class UserPokemonsController {
     const moveData = await MoveData.findByPk(moveId);
     const newMove = { name: moveData.move_name, learnAt: 1 };
     let learnedMove;
+    const userPoints = await getUserPoints(user.username);
+
+    if (userPoints < moveData.price) {
+      return res.status(401).json({ message: 'Not enough points' });
+    }
 
     const pokemon = await Pokemon.findByPk(pokemonId, {
       include: 'pokemon_data',
@@ -290,9 +309,7 @@ class UserPokemonsController {
         .json({ message: 'Pokemon already learned this move' });
     }
 
-    const canLearn = pokemon.pokemon_data.can_learn.find(
-      (move) => move === newMove.name
-    );
+    const canLearn = pokemon.pokemon_data.can_learn.includes(newMove.name);
     if (!canLearn) {
       return res.status(400).json({ message: "Pokemon can't learn this move" });
     }
@@ -300,7 +317,7 @@ class UserPokemonsController {
     if (pokemon.moves.length === 4) {
       const { deleteMove } = req.query;
       if (!deleteMove) {
-        return res.status(400).json({
+        return res.status(300).json({
           message: 'Need to choose a move to delete',
           newMove,
           moves: pokemon.moves,

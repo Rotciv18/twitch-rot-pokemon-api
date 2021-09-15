@@ -3,8 +3,14 @@ import { isSameDay, parseISO } from 'date-fns';
 import BattleInvitation from '../../models/BattleInvitation';
 import Position from '../../models/Position';
 import BattleSchedule from '../../models/BattleSchedule';
+import User from '../../models/User';
 
 import InvitationValidation from '../../services/BattleServices/InvitationValidation';
+import capitalize from '../../../helpers/capitalize';
+import buildPositionString from '../../../helpers/buildPositionString';
+
+import { triggerAlert } from '../../services/StreamLabs/Alerts';
+import alertConstants from '../../../config/alertConstants';
 
 class UserBattleInvitationsController {
   async store(req, res) {
@@ -118,6 +124,29 @@ class UserBattleInvitationsController {
       });
 
       await battleInvitation.update({ status: 'scheduled' });
+
+      const challenger = await User.findByPk(battleInvitation.challenger_id);
+
+      let battleMessage;
+      if (battleInvitation.position_id) {
+        const position = Position.findByPk(battleInvitation.position_id);
+
+        battleMessage = `${capitalize(
+          challenger.username
+        )} desafiou o ${buildPositionString(position)}!`;
+      } else {
+        battleMessage = `${capitalize(
+          challenger.username
+        )} desafiou ${capitalize(user.username)} para uma batalha!`;
+      }
+
+      triggerAlert({
+        type: 'follow',
+        image_href: alertConstants.pokemonChallengeGifUrl,
+        message: battleMessage,
+        duration: 5000,
+        sound_href: alertConstants.pokemonChallengeSoundUrl,
+      });
 
       return res.json(battleSchedule);
     } catch (error) {

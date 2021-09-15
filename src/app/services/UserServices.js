@@ -65,7 +65,7 @@ export const canSetup = async (user) => {
 
 export const canLevelUpOrEvolve = async (user, pokemon) => {
   if (!user.setup.pokemons.length) {
-    return true;
+    return [true, null];
   }
 
   // Is pokemon in setup?

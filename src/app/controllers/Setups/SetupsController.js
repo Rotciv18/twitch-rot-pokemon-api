@@ -22,7 +22,9 @@ class SetupsController {
 
     const [canUserSetup, reason] = await canSetup(user);
     if (!canUserSetup) {
-      return res.status(401).json({ message: `User have one ${reason}` });
+      return res
+        .status(401)
+        .json({ message: `User have one ${reason}`, hasOne: reason });
     }
 
     const pokemon = await Pokemon.findByPk(pokemonId);
@@ -50,7 +52,9 @@ class SetupsController {
 
     const [canUserSetup, reason] = await canSetup(user);
     if (!canUserSetup) {
-      return res.status(401).json({ message: `User have one ${reason}` });
+      return res
+        .status(401)
+        .json({ message: `User have one ${reason}`, hasOne: reason });
     }
 
     await Pokemon.update({ setup_id: null }, { where: { id: pokemonId } });

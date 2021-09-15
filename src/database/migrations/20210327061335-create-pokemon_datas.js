@@ -24,9 +24,9 @@ module.exports = {
         defaultValue: [],
       },
       can_learn: {
-        type: Sequelize.ARRAY(Sequelize.STRING),
+        type: Sequelize.STRING,
         allowNull: true,
-        defaultValue: [],
+        defaultValue: '',
       },
       created_at: Sequelize.DATE,
       updated_at: Sequelize.DATE,
