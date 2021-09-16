@@ -44,13 +44,18 @@ async function getPokemonEvolutionData(evoChain, pokemonName) {
 function getPokemonMoves(pokemon) {
   const moves = [];
   pokemon.moves.forEach((move) => {
-    const levelLearnedAt =
-      move.version_group_details.length > 1
-        ? move.version_group_details[1].level_learned_at
-        : 0;
-    if (levelLearnedAt > 0) {
-      moves.push({ name: move.move.name, learnAt: levelLearnedAt });
+    const versionGroupDetails = move.version_group_details.find(
+      (vgd) =>
+        vgd.move_learn_method.name === 'level-up' &&
+        vgd.version_group.name === 'red-blue'
+    );
+    if (!versionGroupDetails) {
+      return;
     }
+
+    const levelLearnedAt = versionGroupDetails.level_learned_at;
+
+    moves.push({ name: move.move.name, learnAt: levelLearnedAt });
   });
   return moves;
 }

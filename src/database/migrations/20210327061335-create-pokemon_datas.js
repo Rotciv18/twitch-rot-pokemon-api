@@ -24,7 +24,7 @@ module.exports = {
         defaultValue: [],
       },
       can_learn: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(1000),
         allowNull: true,
         defaultValue: '',
       },
