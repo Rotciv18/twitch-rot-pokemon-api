@@ -18,12 +18,8 @@ class StreamAvatarsController {
           `/users?id=${twitch_id}`
         );
 
-        if (userTwitchResponse.status !== 200) {
-          console.log(username);
-          console.log(twitch_id);
-          console.log(
-            'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-          );
+        if (!userTwitchResponse.data.data[0]) {
+          return;
         }
         const { profile_image_url } = userTwitchResponse.data.data[0];
 
