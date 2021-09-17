@@ -1,3 +1,4 @@
+import { response } from 'express';
 import User from '../../models/User';
 import PokemonData from '../../models/PokemonData';
 import Pokemon from '../../models/Pokemon';
@@ -63,7 +64,7 @@ class StreamAvatarsController {
     );
 
     await Promise.all(promises);
-    console.log('FINISHED FILLING USERS');
+    return response.json({ message: 'Users have been updated!' });
   }
 }
 
