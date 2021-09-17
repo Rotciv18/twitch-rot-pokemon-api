@@ -11,8 +11,11 @@ import BattlesRoutes from './BattlesRoutes';
 import UserPositionsRoutes from './UserPositionsRoutes';
 import PokeballsRoutes from './PokeballsRoutes';
 import StonesRoutes from './StonesRoutes';
+import StreamAvatarsRoutes from './StreamAvatarsRoutes';
 
 const routes = new Router();
+
+routes.use('/api/stream_avatars', StreamAvatarsRoutes);
 
 routes.use(tokenMiddleware);
 

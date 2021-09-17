@@ -4,5 +4,4 @@ export default {
   channelName: process.env.CHANNEL_NAME,
   botUsername: process.env.BOT_USERNAME,
   channelId: process.env.CHANNEL_ID,
-  oauthToken: process.env.OAUTH_TOKEN,
 };
