@@ -15,8 +15,9 @@ class StreamAvatarsController {
           include: 'pokemons',
         });
         const userTwitchResponse = await twitchApi.get(
-          `/users?login=${username}`
+          `/users?id=${twitch_id}`
         );
+
         const { profile_image_url } = userTwitchResponse.data.data[0];
 
         const user =
