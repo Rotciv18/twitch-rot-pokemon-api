@@ -1,4 +1,3 @@
-import { response } from 'express';
 import User from '../../models/User';
 import PokemonData from '../../models/PokemonData';
 import Pokemon from '../../models/Pokemon';
@@ -6,9 +5,9 @@ import Setup from '../../models/Setup';
 import twitchApi from '../../services/twitchApi';
 
 class StreamAvatarsController {
-  async updateUsers() {
+  async updateUsers(req, res) {
     console.log('EXECUTING FILLUSERS NOW:');
-    const { usersData, twitchViewersId } = this.props;
+    const { usersData, twitchViewersId } = req.body;
 
     const promises = Object.entries(twitchViewersId).map(
       async ([twitch_id, username]) => {
@@ -64,7 +63,7 @@ class StreamAvatarsController {
     );
 
     await Promise.all(promises);
-    return response.json({ message: 'Users have been updated!' });
+    return res.json({ message: 'Users have been updated!' });
   }
 }
 

@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import bodyParser from 'body-parser';
 import routes from './app/routes';
 import 'dotenv/config';
 import './database';
@@ -15,8 +14,7 @@ class App {
 
   middlewares() {
     this.server.use(cors());
-    this.server.use(express.json());
-    this.server.use(bodyParser.json({ limit: '50mb' }));
+    this.server.use(express.json({ limit: '50mb' }));
   }
 
   routes() {

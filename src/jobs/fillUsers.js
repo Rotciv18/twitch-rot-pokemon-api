@@ -8,6 +8,7 @@ export default async () => {
 
   const response = await axios.post(
     'http://52.23.163.168:3333/api/stream_avatars/users',
+    // 'http://localhost:3333/api/stream_avatars/users',
     {
       usersData,
       twitchViewersId,
