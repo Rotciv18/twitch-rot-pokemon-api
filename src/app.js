@@ -7,10 +7,10 @@ import './database';
 const whitelist = ['http://localhost:8080', 'chrome-extension://'];
 
 const corsOptions = {
-  origin: () => true,
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
+  origin: (origin, callback) => {
+    callback(null, true);
+  },
+  // credentials: true,
 };
 
 class App {
@@ -22,8 +22,8 @@ class App {
   }
 
   middlewares() {
-    this.server.use(express.json({ limit: '50mb' }));
     this.server.use(cors(corsOptions));
+    this.server.use(express.json({ limit: '50mb' }));
   }
 
   routes() {
