@@ -7,12 +7,10 @@ import './database';
 const whitelist = ['http://localhost:8080', 'chrome-extension://'];
 
 const corsOptions = {
-  origin(origin, callback) {
-    // const originIsWhitelisted = whitelist.indexOf(origin) !== -1;
-    // callback(null, originIsWhitelisted)
-    callback(null, true);
-  },
-  credentials: true,
+  origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
 };
 
 class App {
