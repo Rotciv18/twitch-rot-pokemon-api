@@ -26,7 +26,7 @@ class App {
   }
 
   middlewares() {
-    this.server.use(cors(corsOptions));
+    this.server.use(cors());
     this.server.use(express.json({ limit: '50mb' }));
   }
 
