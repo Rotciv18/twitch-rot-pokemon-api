@@ -7,7 +7,7 @@ import './database';
 const whitelist = ['http://localhost:8080', 'chrome-extension://'];
 
 const corsOptions = {
-  origin: '*',
+  origin: () => true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   preflightContinue: false,
   optionsSuccessStatus: 204,
