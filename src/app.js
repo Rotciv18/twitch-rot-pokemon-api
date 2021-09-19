@@ -4,6 +4,10 @@ import routes from './app/routes';
 import 'dotenv/config';
 import './database';
 
+const tls = require('tls');
+
+tls.DEFAULT_MAX_VERSION = 'TLSv1.3';
+
 const whitelist = ['http://localhost:8080', 'chrome-extension://'];
 
 const corsOptions = {
