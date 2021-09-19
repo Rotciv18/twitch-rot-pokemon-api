@@ -4,6 +4,15 @@ import routes from './app/routes';
 import 'dotenv/config';
 import './database';
 
+const corsOptions = {
+  origin(origin, callback) {
+    const originIsWhitelisted = whitelist.indexOf(origin) !== -1;
+    // callback(null, originIsWhitelisted)
+    callback(null, true);
+  },
+  credentials: true,
+};
+
 class App {
   constructor() {
     this.server = express();
@@ -13,7 +22,7 @@ class App {
   }
 
   middlewares() {
-    this.server.use(cors());
+    this.server.use(cors(corsOptions));
     this.server.use(express.json({ limit: '50mb' }));
   }
 
