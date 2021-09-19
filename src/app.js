@@ -4,9 +4,11 @@ import routes from './app/routes';
 import 'dotenv/config';
 import './database';
 
+const whitelist = ['http://localhost:8080', 'chrome-extension://'];
+
 const corsOptions = {
   origin(origin, callback) {
-    const originIsWhitelisted = whitelist.indexOf(origin) !== -1;
+    // const originIsWhitelisted = whitelist.indexOf(origin) !== -1;
     // callback(null, originIsWhitelisted)
     callback(null, true);
   },
