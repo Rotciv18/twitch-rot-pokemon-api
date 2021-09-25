@@ -16,6 +16,16 @@ import alertPokemonQueue from '../queues/alertPokemonQueue';
 
 import capitalize from '../helpers/capitalize';
 
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function emoteOnlyOff() {
+  try {
+    await twitchClient.emoteonly(channelConfig.channelName);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 function isBall(pokeballString) {
   return (
     pokeballString === '!ball' ||
@@ -27,13 +37,13 @@ function isBall(pokeballString) {
 function ballChance(ballType) {
   switch (ballType) {
     case '!ball':
-      return 25;
+      return 15;
 
     case '!great':
-      return 50;
+      return 25;
 
     case '!ultra':
-      return 75;
+      return 40;
 
     default:
       return null;
@@ -47,7 +57,7 @@ function getRandomInt(min, max) {
 }
 
 export default async () => {
-  const delay = getRandomInt(2000, 4000) * 60;
+  const delay = getRandomInt(800, 1500) * 3600;
   const commonPokemonIds = [
     1,
     4,
@@ -168,7 +178,7 @@ export default async () => {
         !isInCatch &&
         isBall(ballType)
       ) {
-        twitchClient.emoteonly(channelConfig.channelName);
+        await twitchClient.emoteonly(channelConfig.channelName);
         isInCatch = true;
         const roll = Math.floor(Math.random() * 100) + 1;
         const hasPokemon = user.pokemons.find(
@@ -177,16 +187,16 @@ export default async () => {
 
         // User has pokeballs
 
-        // if (!hasPokeballs(user, ballType)) {
-        if (false) {
+        if (!hasPokeballs(user, ballType)) {
+          // if (false) {
           isInCatch = false;
-          twitchClient.emoteonlyoff(channelConfig.channelName);
+          await emoteOnlyOff();
           chatMessage(`${userDisplayName} não tem pokebolas!`);
 
           // User has the Pokemon
         } else if (hasPokemon) {
           isInCatch = false;
-          twitchClient.emoteonlyoff(channelConfig.channelName);
+          await emoteOnlyOff();
           chatMessage(
             `${userDisplayName} já tem um ${capitalize(pokemonData.name)}!`
           );
@@ -196,81 +206,69 @@ export default async () => {
           removeBall(user, ballType);
 
           disconnected = true;
-          setTimeout(() => {
-            chatMessage('1...');
-            setTimeout(() => {
-              chatMessage('2...');
-              setTimeout(() => {
-                chatMessage('3...');
-                setTimeout(async () => {
-                  // Catching Pokemon
+          await wait(150);
+          chatMessage('1...');
+          await wait(1000);
+          chatMessage('2...');
+          await wait(1000);
+          chatMessage('3...');
+          await wait(500);
+          // Catching Pokemon
 
-                  chatMessage(`${capitalize(pokemonData.name)} foi capturado!`);
+          chatMessage(`${capitalize(pokemonData.name)} foi capturado!`);
 
-                  triggerAlert({
-                    type: 'follow',
-                    image_href: alertConstants.pokemonCatchGifUrl,
-                    message: `${userDisplayName} capturou um ${capitalize(
-                      pokemonData.name
-                    )}`,
-                    duration: 5000,
-                    sound_href: alertConstants.pokemonCatchSoundUrl,
-                  });
+          triggerAlert({
+            type: 'follow',
+            image_href: alertConstants.pokemonCatchGifUrl,
+            message: `${userDisplayName} capturou um ${capitalize(
+              pokemonData.name
+            )}`,
+            duration: 5000,
+            sound_href: alertConstants.pokemonCatchSoundUrl,
+          });
 
-                  const moves = pokemonData.moves.filter(
-                    (move) => move.learnAt === 1
-                  );
-                  await Pokemon.create({
-                    moves,
-                    user_id: user.id,
-                    pokemon_data_id: pokemonData.id,
-                    name: pokemonData.name,
-                  });
+          const moves = pokemonData.moves.filter((move) => move.learnAt === 1);
+          await Pokemon.create({
+            moves,
+            user_id: user.id,
+            pokemon_data_id: pokemonData.id,
+            name: pokemonData.name,
+          });
 
-                  await giftPokemon(username, pokemonData.name);
-                  await twitchClient.emoteonlyoff(channelConfig.channelName);
+          await giftPokemon(username, pokemonData.name);
+          await emoteOnlyOff();
 
-                  twitchClient.removeListener(
-                    'message',
-                    twitchClient._events.message
-                  );
+          twitchClient.removeListener('message', twitchClient._events.message);
 
-                  alertPokemonQueue.add({}, { delay });
-                }, 500);
-              }, 1000);
-            }, 1000);
-          }, 150);
+          alertPokemonQueue.add({}, { delay });
 
           // User missed the pokemon
         } else {
           removeBall(user, ballType);
 
-          setTimeout(() => {
-            chatMessage('1...');
-            setTimeout(() => {
-              chatMessage('2...');
-              setTimeout(async () => {
-                // Failing to catch pokemon
+          await wait(1000);
+          chatMessage('1...');
+          await wait(1000);
+          chatMessage('2...');
+          await wait(150);
+          // Failing to catch pokemon
 
-                chatMessage(
-                  `${capitalize(
-                    pokemonData.name
-                  )} escapou da pokebola de ${userDisplayName} (${ballChance(
-                    ballType
-                  )}% de chance de captura).`
-                );
+          chatMessage(
+            `${capitalize(
+              pokemonData.name
+            )} escapou da pokebola de ${userDisplayName} (${ballChance(
+              ballType
+            )}% de chance de captura).`
+          );
 
-                await twitchClient.emoteonlyoff(channelConfig.channelName);
-                isInCatch = false;
-              }, 1000);
-            }, 1000);
-          }, 150);
+          await emoteOnlyOff();
+          isInCatch = false;
         }
       }
     });
 
-    setTimeout(() => {
-      twitchClient.emoteonlyoff(channelConfig.channelName);
+    setTimeout(async () => {
+      await emoteOnlyOff();
       if (!disconnected) {
         chatMessage(`O ${capitalize(pokemonData.name)} fugiu!`);
         twitchClient.removeListener('message', twitchClient._events.message);

@@ -1,10 +1,9 @@
 import 'dotenv/config';
 import twitchApi from './src/app/services/twitchApi';
+import fillUsersPokemonQueue from './src/queues/fillUsersPokemonQueue';
 
 const printae = async () => {
-  const response = await twitchApi.get('/users?login=rotciv__');
-
-  console.log(response.data);
+  fillUsersPokemonQueue.add();
 };
 
 printae();
