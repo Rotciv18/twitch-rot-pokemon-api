@@ -8,7 +8,7 @@
     "dev": "nodemon src/server.js",
     "queue": "nodemon src/queue.js",
     "build": "sucrase ./src/ -d ./dist --transforms imports",
-    "start": "pm2 start ./dist/server.js && pm2 start .dist/queue.js",
+    "start": "pm2 start ./dist/server.js && pm2 start ./dist/queue.js",
     "stop": "pm2 delete all",
     "startFillUsers": "pm2 start ./dist/fillUsersQueue.js"
   },
