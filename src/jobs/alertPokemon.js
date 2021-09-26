@@ -16,6 +16,10 @@ import alertPokemonQueue from '../queues/alertPokemonQueue';
 
 import capitalize from '../helpers/capitalize';
 
+const WILD_POKEMON_DURATION_ESCAPE_TIME = 60000;
+const MIN_DELAY = 400;
+const MAX_DELAY = 1500;
+
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function emoteOnlyOff() {
@@ -57,7 +61,10 @@ function getRandomInt(min, max) {
 }
 
 export default async () => {
-  const delay = getRandomInt(800, 1500) * 3600;
+  // Não sei mais como isso funciona
+  const delay = 65000;
+  // const delay = getRandomInt(MIN_DELAY, MAX_DELAY) * 3600;
+
   const commonPokemonIds = [
     1,
     4,
@@ -135,6 +142,7 @@ export default async () => {
     143,
     147,
   ];
+
   let chosenId;
   const rand = Math.floor(Math.random() * 10);
   if (rand === 9) {
@@ -274,6 +282,6 @@ export default async () => {
         twitchClient.removeListener('message', twitchClient._events.message);
         alertPokemonQueue.add({}, { delay });
       }
-    }, 45000);
+    }, WILD_POKEMON_DURATION_ESCAPE_TIME);
   }
 };
