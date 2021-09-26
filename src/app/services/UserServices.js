@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 import BattleInvitation from '../models/BattleInvitation';
 import BattleSchedule from '../models/BattleSchedule';
+import User from '../models/User';
 
 export const hasPokeballs = (user, ballType) => {
   switch (ballType) {
@@ -103,4 +104,12 @@ export const canLevelUpOrEvolve = async (user, pokemon) => {
   }
 
   return [true, null];
+};
+
+export const addDuelTicket = async (userId) => {
+  const user = await User.findByPk(userId);
+
+  user.duel_tickets += 1;
+
+  await user.save();
 };

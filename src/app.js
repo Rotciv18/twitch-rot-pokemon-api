@@ -8,15 +8,6 @@ const tls = require('tls');
 
 tls.DEFAULT_MAX_VERSION = 'TLSv1.3';
 
-const whitelist = ['http://localhost:8080', 'chrome-extension://'];
-
-const corsOptions = {
-  origin: (origin, callback) => {
-    callback(null, true);
-  },
-  // credentials: true,
-};
-
 class App {
   constructor() {
     this.server = express();
