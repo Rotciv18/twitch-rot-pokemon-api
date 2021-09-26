@@ -240,7 +240,7 @@ export default async () => {
 
           twitchClient.removeListener('message', twitchClient._events.message);
 
-          alertPokemonQueue.add({}, { delay });
+          await alertPokemonQueue.add({}, { delay });
 
           // User missed the pokemon
         } else {
@@ -272,7 +272,7 @@ export default async () => {
       if (!disconnected) {
         chatMessage(`O ${capitalize(pokemonData.name)} fugiu!`);
         twitchClient.removeListener('message', twitchClient._events.message);
-        alertPokemonQueue.add({}, { delay });
+        await alertPokemonQueue.add({}, { delay });
       }
     }, WILD_POKEMON_DURATION_ESCAPE_TIME);
   }
