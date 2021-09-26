@@ -4,11 +4,12 @@ import User from '../app/models/User';
 
 import { triggerAlert } from '../app/services/StreamLabs/Alerts';
 import twitchClient from '../twitchClient';
-import channelConfig from '../config/channel';
 import alertConstants from '../config/alertConstants';
 import {
   giftPokemon,
   chatMessage,
+  emoteOnlyOff,
+  emoteOnlyOn,
 } from '../app/services/Twitch/twitchServices';
 import { hasPokeballs, removeBall } from '../app/services/UserServices';
 
@@ -21,14 +22,6 @@ const MIN_DELAY = 400;
 const MAX_DELAY = 1500;
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-async function emoteOnlyOff() {
-  try {
-    await twitchClient.emoteonly(channelConfig.channelName);
-  } catch (error) {
-    console.log(error);
-  }
-}
 
 function isBall(pokeballString) {
   return (
@@ -62,8 +55,7 @@ function getRandomInt(min, max) {
 
 export default async () => {
   // Não sei mais como isso funciona
-  const delay = 65000;
-  // const delay = getRandomInt(MIN_DELAY, MAX_DELAY) * 3600;
+  const delay = getRandomInt(MIN_DELAY, MAX_DELAY) * 3600;
 
   const commonPokemonIds = [
     1,
@@ -186,7 +178,7 @@ export default async () => {
         !isInCatch &&
         isBall(ballType)
       ) {
-        await twitchClient.emoteonly(channelConfig.channelName);
+        await emoteOnlyOn();
         isInCatch = true;
         const roll = Math.floor(Math.random() * 100) + 1;
         const hasPokemon = user.pokemons.find(

@@ -12,3 +12,19 @@ export const giftPokemon = async (username, pokemonName) => {
 export const removePokemon = async (username, pokemonName) => {
   chatMessage(`!remove ${username} avatar ${pokemonName}`);
 };
+
+export const emoteOnlyOff = async () => {
+  try {
+    await twitchClient.emoteonlyoff(channelConfig.channelName);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const emoteOnlyOn = async () => {
+  try {
+    await twitchClient.emoteonly(channelConfig.channelName);
+  } catch (error) {
+    console.log(error);
+  }
+};
