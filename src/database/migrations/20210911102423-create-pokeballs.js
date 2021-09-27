@@ -20,9 +20,9 @@ module.exports = {
     });
 
     await queryInterface.bulkInsert('pokeballs', [
-      { name: 'pokeballs', price: 300 },
-      { name: 'greatballs', price: 600 },
-      { name: 'ultraballs', price: 1000 },
+      { name: 'pokeballs', price: 100 },
+      { name: 'greatballs', price: 250 },
+      { name: 'ultraballs', price: 600 },
     ]);
   },
   down: async (queryInterface) => {
