@@ -18,8 +18,8 @@ import alertPokemonQueue from '../queues/alertPokemonQueue';
 import capitalize from '../helpers/capitalize';
 
 const WILD_POKEMON_DURATION_ESCAPE_TIME = 60000;
-const MIN_DELAY = 400;
-const MAX_DELAY = 1000;
+const MIN_DELAY = 167;
+const MAX_DELAY = 334;
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
