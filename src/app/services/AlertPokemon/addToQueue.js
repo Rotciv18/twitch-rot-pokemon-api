@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import alertPokemonQueue from '../../../queues/alertPokemonQueue';
 
 async function run() {
