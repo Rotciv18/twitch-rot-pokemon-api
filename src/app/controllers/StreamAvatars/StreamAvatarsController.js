@@ -6,7 +6,6 @@ import twitchApi from '../../services/twitchApi';
 
 class StreamAvatarsController {
   async updateUsers(req, res) {
-    console.log('EXECUTING FILLUSERS NOW:');
     const { usersData, twitchViewersId } = req.body;
 
     const promises = Object.entries(twitchViewersId).map(
@@ -38,31 +37,34 @@ class StreamAvatarsController {
         if (user.username !== username) {
           await user.update({ username, img_url: profile_image_url });
         }
+        try {
+          const innerPromises = Object.keys(
+            usersData[username].ownedObjects.avatars
+          ).map(async (pokemon) => {
+            const hasPokemon = user.pokemons
+              ? await user.pokemons.find((pkm) => pkm.name === pokemon)
+              : null;
 
-        const innerPromises = Object.keys(
-          usersData[username].ownedObjects.avatars
-        ).map(async (pokemon) => {
-          const hasPokemon = user.pokemons
-            ? await user.pokemons.find((pkm) => pkm.name === pokemon)
-            : null;
+            if (!hasPokemon) {
+              const pokemonData = await PokemonData.findOne({
+                where: { name: pokemon },
+              });
+              const moves = pokemonData.moves.filter(
+                (move) => move.learnAt === 1
+              );
 
-          if (!hasPokemon) {
-            const pokemonData = await PokemonData.findOne({
-              where: { name: pokemon },
-            });
-            const moves = pokemonData.moves.filter(
-              (move) => move.learnAt === 1
-            );
-
-            await Pokemon.create({
-              user_id: user.id,
-              pokemon_data_id: pokemonData.id,
-              name: pokemon,
-              moves,
-            });
-          }
-        });
-        await Promise.all(innerPromises);
+              await Pokemon.create({
+                user_id: user.id,
+                pokemon_data_id: pokemonData.id,
+                name: pokemon,
+                moves,
+              });
+            }
+          });
+          await Promise.all(innerPromises);
+        } catch (e) {
+          console.log(`No data found for ${username}`);
+        }
       }
     );
 
