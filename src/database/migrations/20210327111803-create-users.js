@@ -22,7 +22,7 @@ module.exports = {
       pokeballs: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        defaultValue: 5,
+        defaultValue: 30,
       },
       great_balls: {
         type: Sequelize.INTEGER,
@@ -32,7 +32,7 @@ module.exports = {
       duel_tickets: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        defaultValue: 0,
+        defaultValue: 5,
       },
       badges: {
         type: Sequelize.INTEGER,
