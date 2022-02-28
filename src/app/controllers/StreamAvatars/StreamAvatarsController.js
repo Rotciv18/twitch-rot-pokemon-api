@@ -3,6 +3,7 @@ import PokemonData from '../../models/PokemonData';
 import Pokemon from '../../models/Pokemon';
 import Setup from '../../models/Setup';
 import twitchApi from '../../services/twitchApi';
+import { addPoints } from '../../services/StreamElements/Points';
 
 class StreamAvatarsController {
   async updateUsers(req, res) {
@@ -21,6 +22,11 @@ class StreamAvatarsController {
           return;
         }
         const { profile_image_url } = userTwitchResponse.data.data[0];
+
+        // FOR BETA TEST ONLY
+        if (!foundUser) {
+          addPoints(username, 50000);
+        }
 
         const user =
           foundUser ||
