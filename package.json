@@ -10,6 +10,8 @@
     "build": "sucrase ./src/ -d ./dist --transforms imports",
     "start": "pm2 start ./dist/server.js && pm2 start ./dist/queue.js",
     "stop": "pm2 delete all",
+    "buildPokemonData": "nodemon scripts/buildPokemonData.js",
+    "buildMoveData": "nodemon scripts/buildMoveData.js",
     "startFillUsers": "pm2 start ./dist/fillUsersQueue.js"
   },
   "dependencies": {
