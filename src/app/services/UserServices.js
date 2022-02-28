@@ -36,6 +36,9 @@ export const removeBall = (user, ballType) => {
 };
 
 export const canSetup = async (user) => {
+  const dateNow = new Date();
+  const fiveDaysFromNow = new Date().setDate(dateNow.getDate() + 5);
+
   // Has a position?
   if (user.position_id) {
     return [false, 'position'];
@@ -54,7 +57,7 @@ export const canSetup = async (user) => {
   const battleSchedule = await BattleSchedule.findOne({
     where: {
       [Op.or]: [{ challenger_id: user.id }, { challenged_id: user.id }],
-      battle_date: { [Op.gte]: Date.now() },
+      battle_date: { [Op.gte]: dateNow, [Op.lte]: fiveDaysFromNow },
     },
   });
   if (battleSchedule) {

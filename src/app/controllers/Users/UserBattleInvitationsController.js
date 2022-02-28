@@ -129,7 +129,7 @@ class UserBattleInvitationsController {
 
       let battleMessage;
       if (battleInvitation.position_id) {
-        const position = Position.findByPk(battleInvitation.position_id);
+        const position = await Position.findByPk(battleInvitation.position_id);
 
         battleMessage = `${capitalize(
           challenger.username
