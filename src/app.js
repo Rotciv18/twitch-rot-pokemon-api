@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import twitchextensioncsp from 'twitchextensioncsp';
 import routes from './app/routes';
 import 'dotenv/config';
 import './database';
@@ -20,11 +19,6 @@ class App {
   middlewares() {
     this.server.use(cors());
     this.server.use(express.json({ limit: '50mb' }));
-    this.server.use(
-      twitchextensioncsp({
-        clientID: process.env.TWITCH_CLIENT_ID,
-      })
-    );
   }
 
   routes() {
