@@ -55,8 +55,8 @@ function getRandomInt(min, max) {
 
 export default async () => {
   // Delay em milissegundos para o próximo alerta
-  // const delay = getRandomInt(MIN_DELAY, MAX_DELAY) * 3600;
-  const delay = 10000;
+  const delay = getRandomInt(MIN_DELAY, MAX_DELAY) * 3600;
+  // const delay = 10000;
 
   const commonPokemonIds = [
     1, 4, 7, 10, 13, 16, 21, 23, 25, 27, 29, 32, 35, 37, 39, 41, 43, 46, 48, 50,
