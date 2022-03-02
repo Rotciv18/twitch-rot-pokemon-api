@@ -3,7 +3,7 @@ import channelConfig from './channel';
 export default {
   identity: {
     options: {
-      debug: true,
+      debug: false,
     },
     username: channelConfig.botUsername,
     password: channelConfig.oauthToken,
