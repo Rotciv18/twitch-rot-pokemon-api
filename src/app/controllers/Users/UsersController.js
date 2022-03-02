@@ -7,7 +7,6 @@ import Setup from '../../models/Setup';
 
 class UsersController {
   async me(req, res) {
-    console.log('oi');
     const { user } = req;
 
     const points = await getUserPoints(user.username);

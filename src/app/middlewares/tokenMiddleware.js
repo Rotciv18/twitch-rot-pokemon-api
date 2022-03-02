@@ -4,7 +4,6 @@ import Position from '../models/Position';
 import Setup from '../models/Setup';
 
 export default async (req, res, next) => {
-  console.log('eae1');
   const auth = req.headers.authorization;
 
   if (!auth) {
@@ -27,7 +26,6 @@ export default async (req, res, next) => {
       },
     ],
   });
-  console.log('eae2');
 
   if (!user) {
     return res.status(401).json({ message: 'token invalid' });
