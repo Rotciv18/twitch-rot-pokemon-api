@@ -14,3 +14,10 @@ export const twitchViewerId = async () => {
   const jsonData = JSON.parse(data);
   return jsonData.twitchViewerID;
 };
+
+export const userDictionary = async () => {
+  const readFile = util.promisify(fs.readFile);
+  const data = await readFile(process.env.STREAM_AVATARS_DATA);
+  const jsonData = JSON.parse(data);
+  return jsonData.UserDictionary;
+};

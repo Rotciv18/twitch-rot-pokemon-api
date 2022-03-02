@@ -8,10 +8,10 @@ import { giftPokemon, chatMessage } from '../../services/Twitch/twitchServices';
 
 class StreamAvatarsController {
   async updateUsers(req, res) {
-    const { usersData, twitchViewersId } = req.body;
+    const { usersData, usersDictionary } = req.body;
 
-    const promises = Object.entries(twitchViewersId).map(
-      async ([twitch_id, username]) => {
+    const promises = Object.entries(usersDictionary).map(
+      async ([twitch_id, { ChannelUserName: username }]) => {
         const foundUser = await User.findByPk(twitch_id, {
           include: 'pokemons',
         });
@@ -39,19 +39,34 @@ class StreamAvatarsController {
           (await User.create({
             id: twitch_id,
             username,
+            display_name,
             img_url: profile_image_url,
           }));
 
         if (!foundUser) {
           const setup = await Setup.create({ user_id: user.id });
           user.update({ setup_id: setup.id, img_url: profile_image_url });
+
+          // Adiciona rattata para o novo usuário
+          const rattata = await PokemonData.findByPk(19);
+          const moves = rattata.moves.filter((move) => move.learnAt === 1);
+          await Pokemon.create({
+            user_id: user.id,
+            pokemon_data_id: 19,
+            name: 'rattata',
+            moves,
+          });
         }
         if (user.username !== username) {
-          await user.update({ username, img_url: profile_image_url });
+          await user.update({
+            username,
+            img_url: profile_image_url,
+            display_name,
+          });
         }
         try {
           const innerPromises = Object.keys(
-            usersData[username].ownedObjects.avatars
+            usersData[twitch_id].ownedObjects.avatars
           ).map(async (pokemon) => {
             const hasPokemon = user.pokemons
               ? await user.pokemons.find((pkm) => pkm.name === pokemon)

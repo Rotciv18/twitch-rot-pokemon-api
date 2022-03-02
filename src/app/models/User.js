@@ -9,6 +9,7 @@ class User extends Model {
           primaryKey: true,
         },
         username: Sequelize.STRING,
+        display_name: Sequelize.STRING,
         img_url: Sequelize.STRING,
         level: Sequelize.INTEGER,
         pokeballs: Sequelize.INTEGER,

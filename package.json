@@ -26,7 +26,6 @@
     "pg-hstore": "^2.3.3",
     "sequelize": "^6.6.2",
     "tmi.js": "^1.8.3",
-    "twitchextensioncsp": "^1.1.2",
     "uuid": "^8.3.2",
     "yup": "^0.32.9"
   },

@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { userData, twitchViewerId } from '../helpers/StreamAvatarsData';
+import { userData, userDictionary } from '../helpers/StreamAvatarsData';
 
 export default async () => {
   console.log('EXECUTING FILLUSERS NOW:');
   const usersData = await userData();
-  const twitchViewersId = await twitchViewerId();
+  const usersDictionary = await userDictionary();
 
   try {
     const response = await axios.post(
@@ -12,9 +12,12 @@ export default async () => {
       'https://pokerot.com/api/stream_avatars/users',
       {
         usersData,
-        twitchViewersId,
+        usersDictionary,
       }
     );
+    // Object.keys(usersData['33699502'].ownedObjects.avatars).map((oi) => {
+    //   console.log(oi);
+    // });
 
     console.log(response.data);
   } catch (error) {

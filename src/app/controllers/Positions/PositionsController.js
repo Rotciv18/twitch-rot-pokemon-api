@@ -10,7 +10,7 @@ class PositionsController {
       include: {
         model: User,
         as: 'user',
-        attributes: ['username', 'img_url', 'id'],
+        attributes: ['username', 'img_url', 'id', 'display_name'],
         include: {
           model: Setup,
           as: 'setup',
