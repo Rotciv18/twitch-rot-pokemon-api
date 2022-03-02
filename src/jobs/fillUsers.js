@@ -15,9 +15,6 @@ export default async () => {
         usersDictionary,
       }
     );
-    // Object.keys(usersData['33699502'].ownedObjects.avatars).map((oi) => {
-    //   console.log(oi);
-    // });
 
     console.log(response.data);
   } catch (error) {
