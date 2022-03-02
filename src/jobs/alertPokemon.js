@@ -197,16 +197,27 @@ export default async () => {
 
           await emoteOnlyOff();
           isInCatch = false;
+
+          if (disconnected) {
+            chatMessage(`O ${capitalize(pokemonData.name)} fugiu!`);
+            twitchClient.removeListener(
+              'message',
+              twitchClient._events.message
+            );
+            await alertPokemonQueue.add({}, { delay });
+          }
         }
       }
     });
 
     setTimeout(async () => {
-      await emoteOnlyOff();
-      if (!disconnected) {
+      if (!disconnected && !isInCatch) {
         chatMessage(`O ${capitalize(pokemonData.name)} fugiu!`);
+        await emoteOnlyOff();
         twitchClient.removeListener('message', twitchClient._events.message);
         await alertPokemonQueue.add({}, { delay });
+      } else if (isInCatch && !disconnected) {
+        disconnected = true;
       }
     }, WILD_POKEMON_DURATION_ESCAPE_TIME);
   }
