@@ -105,6 +105,10 @@ export default async () => {
         where: { username },
         include: 'pokemons',
       });
+      if (!user) {
+        chatMessage(`${userDisplayName} ainda não está cadastrado.`);
+        return;
+      }
 
       // User typed correctly
       if (
