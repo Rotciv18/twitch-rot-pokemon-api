@@ -2,7 +2,7 @@ import axios from 'axios';
 import MoveData from '../app/models/MoveData';
 
 const baseUrl = 'https://pokeapi.co/api/v2';
-const machineCount = 1442;
+const machineCount = 1688;
 
 export default async function buildTMData() {
   const indexArray = [];

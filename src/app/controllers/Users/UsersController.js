@@ -1,9 +1,8 @@
 import { Op } from 'sequelize';
 import User from '../../models/User';
-import BattleInvitation from '../../models/BattleInvitation';
-import BattleSchedule from '../../models/BattleSchedule';
 import { getUserPoints } from '../../services/StreamElements/Points';
 import Setup from '../../models/Setup';
+import sumArrayProperties from '../../../helpers/sumArrayProperties';
 
 class UsersController {
   async me(req, res) {
@@ -24,34 +23,28 @@ class UsersController {
     let users;
 
     if (levelDiff) {
-      const forbiddenUsers = [];
+      const permittedUsers = [];
+      const userSetupLevel = sumArrayProperties(user.setup.pokemons, 'level');
+      if (!userSetupLevel) {
+        return res.json([]);
+      }
 
-      const invitations = await BattleInvitation.findAll({
+      const maxLevel = parseInt(levelDiff, 10) + userSetupLevel;
+      const minLevel = Math.max(userSetupLevel - parseInt(levelDiff, 10), 10);
+
+      const setups = await Setup.findAll({
+        include: ['pokemons'],
         where: {
-          status: 'waiting',
-          [Op.or]: [{ challenger_id: user.id }, { challenged_id: user.id }],
+          user_id: {
+            [Op.ne]: user.id,
+          },
+          '$pokemons.level$': {
+            [Op.gte]: minLevel,
+            [Op.lte]: maxLevel,
+          },
         },
       });
-
-      const schedules = await BattleSchedule.findAll({
-        where: {
-          winner_id: null,
-          [Op.or]: [{ challenger_id: user.id }, { challenged_id: user.id }],
-        },
-      });
-
-      invitations.forEach((invitation) => {
-        forbiddenUsers.push(invitation.challenged_id);
-        forbiddenUsers.push(invitation.challenger_id);
-      });
-
-      schedules.forEach((schedule) => {
-        forbiddenUsers.push(schedule.challenged_id);
-        forbiddenUsers.push(schedule.challenger_id);
-      });
-
-      const maxLevel = parseInt(levelDiff, 10) + user.level;
-      const minLevel = Math.max(user.level - parseInt(levelDiff, 10), 5);
+      setups.forEach((setup) => permittedUsers.push(setup.user_id));
 
       users = await User.findAll({
         include: {
@@ -61,15 +54,7 @@ class UsersController {
         },
         where: {
           id: {
-            [Op.notIn]: forbiddenUsers,
-            [Op.ne]: user.id,
-          },
-          '$setup.pokemons.id$': {
-            [Op.ne]: null,
-          },
-          level: {
-            [Op.gte]: minLevel,
-            [Op.lte]: maxLevel,
+            [Op.in]: permittedUsers,
           },
         },
       });

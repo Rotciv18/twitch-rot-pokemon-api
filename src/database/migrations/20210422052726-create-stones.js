@@ -40,6 +40,12 @@ module.exports = {
           'https://www.seekpng.com/png/full/321-3215934_firestone-logo-png.png',
         price: 5000,
       },
+      {
+        name: 'moon-stone',
+        img_url:
+          'https://www.seekpng.com/png/full/321-3215934_firestone-logo-png.png',
+        price: 5000,
+      },
     ]);
   },
   down: async (queryInterface) => {

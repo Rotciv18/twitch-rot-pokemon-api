@@ -166,12 +166,16 @@ class UserPokemonsController {
             if (move.name !== moveToDelete.name) remainingMoves.push(move);
           });
           pokemon.moves = [...remainingMoves, newMove];
+          pokemon.past_learned_moves = [...pokemon.past_learned_moves, newMove];
 
           learnedMove = newMove.name;
+        } else {
+          pokemon.past_learned_moves = [...pokemon.past_learned_moves, newMove];
         }
       } else {
         learnedMove = newMove.name;
         pokemon.moves = [...pokemon.moves, newMove];
+        pokemon.past_learned_moves = [...pokemon.past_learned_moves, newMove];
       }
     }
 
@@ -187,19 +191,21 @@ class UserPokemonsController {
       });
 
       // Pokemon irá aprender novo move ao evoluir
-      const newEvolutionMove = willLearnNewMoveEvolved(
+
+      let newEvolutionMove = willLearnNewMoveEvolved(
         evolutionPokemonData,
         newLevel,
         pokemon
       );
-      if (newEvolutionMove) {
+      let { deleteMove } = req.query;
+      while (newEvolutionMove) {
         if (pokemon.moves.length === 4) {
-          const { deleteMove } = req.query;
           if (!deleteMove) {
             return res.status(300).json({
               message: 'Need to choose a move to delete',
               newEvolutionMove,
               moves: pokemon.moves,
+              pokemon,
             });
           }
 
@@ -222,11 +228,55 @@ class UserPokemonsController {
               }
             });
             pokemon.moves = [...remainingMoves, newEvolutionMove];
-
+            pokemon.past_learned_moves = [
+              ...pokemon.past_learned_moves,
+              newEvolutionMove,
+            ];
+            deleteMove = null;
             learnedMove = newEvolutionMove.name;
+
+            newEvolutionMove = willLearnNewMoveEvolved(
+              evolutionPokemonData,
+              newLevel,
+              pokemon
+            );
+
+            if (newEvolutionMove) {
+              await pokemon.save();
+            }
+          } else {
+            pokemon.past_learned_moves = [
+              ...pokemon.past_learned_moves,
+              newEvolutionMove,
+            ];
+
+            newEvolutionMove = willLearnNewMoveEvolved(
+              evolutionPokemonData,
+              newLevel,
+              pokemon
+            );
+            if (newEvolutionMove) {
+              await pokemon.save();
+            }
+            deleteMove = null;
           }
         } else {
           pokemon.moves = [...pokemon.moves, newEvolutionMove];
+          pokemon.past_learned_moves = [
+            ...pokemon.past_learned_moves,
+            newEvolutionMove,
+          ];
+          learnedMove = newEvolutionMove.name;
+
+          newEvolutionMove = willLearnNewMoveEvolved(
+            evolutionPokemonData,
+            newLevel,
+            pokemon
+          );
+
+          if (newEvolutionMove) {
+            await pokemon.save();
+          }
         }
       }
 
@@ -278,8 +328,6 @@ class UserPokemonsController {
   }
 
   async learnMove(req, res) {
-    // TODO: Checar e cobrar pontos de usuário
-
     const { user } = req;
     const { pokemonId } = req.params;
     const { moveId } = req.query;
@@ -288,6 +336,10 @@ class UserPokemonsController {
     }
 
     const moveData = await MoveData.findByPk(moveId);
+    if (!moveData) {
+      return res.status(404).json({ message: 'Move Data not found' });
+    }
+
     const newMove = { name: moveData.move_name, learnAt: 1 };
     let learnedMove;
     const userPoints = await getUserPoints(user.username);
@@ -346,6 +398,7 @@ class UserPokemonsController {
     }
 
     try {
+      addPoints(user.username, -moveData.price);
       await pokemon.save();
 
       return res.json({
@@ -407,19 +460,20 @@ class UserPokemonsController {
       });
 
       // Pokemon irá aprender novo move ao evoluir
-      const newEvolutionMove = willLearnNewMoveEvolved(
+      let newEvolutionMove = willLearnNewMoveEvolved(
         evolutionPokemonData,
         pokemon.level,
         pokemon
       );
-      if (newEvolutionMove) {
+      let { deleteMove } = req.query;
+      while (newEvolutionMove) {
         if (pokemon.moves.length === 4) {
-          const { deleteMove } = req.query;
           if (!deleteMove) {
             return res.status(300).json({
               message: 'Need to choose a move to delete',
               newEvolutionMove,
               moves: pokemon.moves,
+              pokemon,
             });
           }
 
@@ -428,7 +482,6 @@ class UserPokemonsController {
             const moveToDelete = pokemon.moves.find(
               (move) => move.name === deleteMove
             );
-            console.log(deleteMove, moveToDelete);
             if (!moveToDelete) {
               return res
                 .status(400)
@@ -443,17 +496,63 @@ class UserPokemonsController {
               }
             });
             pokemon.moves = [...remainingMoves, newEvolutionMove];
+            pokemon.past_learned_moves = [
+              ...pokemon.past_learned_moves,
+              newEvolutionMove,
+            ];
 
+            deleteMove = null;
             learnedMove = newEvolutionMove.name;
+
+            newEvolutionMove = willLearnNewMoveEvolved(
+              evolutionPokemonData,
+              pokemon.level,
+              pokemon
+            );
+
+            if (newEvolutionMove) {
+              await pokemon.save();
+            }
+          } else {
+            pokemon.past_learned_moves = [
+              ...pokemon.past_learned_moves,
+              newEvolutionMove,
+            ];
+
+            newEvolutionMove = willLearnNewMoveEvolved(
+              evolutionPokemonData,
+              pokemon.level,
+              pokemon
+            );
+            if (newEvolutionMove) {
+              await pokemon.save();
+            }
+            deleteMove = null;
           }
         } else {
           pokemon.moves = [...pokemon.moves, newEvolutionMove];
+          pokemon.past_learned_moves = [
+            ...pokemon.past_learned_moves,
+            newEvolutionMove,
+          ];
+
+          learnedMove = newEvolutionMove.name;
+          newEvolutionMove = willLearnNewMoveEvolved(
+            evolutionPokemonData,
+            pokemon.level,
+            pokemon
+          );
+
+          if (newEvolutionMove) {
+            await pokemon.save();
+          }
         }
       }
 
       // Gift pokemon to user
       await giftPokemon(user.username, newEvolutionData.name);
       await removePokemon(user.username, pokemon.name);
+      addPoints(user.username, -stone.price);
       triggerAlert({
         type: 'follow',
         message: `${capitalize(user.username)} evoluiu seu ${capitalize(

@@ -8,6 +8,7 @@ class Pokemon extends Model {
         name: Sequelize.STRING,
         level: Sequelize.INTEGER,
         moves: Sequelize.JSON,
+        past_learned_moves: Sequelize.JSON,
       },
       { sequelize, tableName: 'pokemons' }
     );

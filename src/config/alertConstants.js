@@ -9,5 +9,5 @@ export default {
   pokemonChallengeGifUrl:
     'https://uploads.twitchalerts.com/000/033/699/502/PBC.png',
   pokemonChallengeSoundUrl:
-    'https://uploads.twitchalerts.com/000/033/699/502/x6_opening_stage.mp3',
+    'https://uploads.twitchalerts.com/000/033/699/502/x6_opening_stage_low.mp3',
 };

@@ -10,7 +10,11 @@ export const willLearnNewMove = async (pokemon, newLevel) => {
       (move) => move.name === newMove.name
     );
 
-    if (alreadyLearned) {
+    const pastLearned = !pokemon.past_learned_moves.some(
+      (pastLearnedMove) => pastLearnedMove.name !== newMove.name
+    );
+
+    if (alreadyLearned || pastLearned) {
       return null;
     }
   }
@@ -29,8 +33,20 @@ export const willLearnNewMoveEvolved = (
   pokemon
 ) => {
   const newMove = evolutionPokemonData.moves.find(
-    (move) => move.learnAt === newLevel
+    (move) =>
+      (move.learnAt === newLevel || move.learnAt === 1) &&
+      !pokemon.past_learned_moves.some(
+        (pastLearned) => pastLearned.name === move.name
+      )
   );
+
+  // evolutionPokemonData.moves.forEach((move) => {
+  //   console.log(
+  //     `${move.name} ------ ${!pokemon.past_learned_moves.some(
+  //       (pastLearned) => pastLearned.name !== move.name
+  //     )}`
+  //   );
+  // });
   if (newMove) {
     const alreadyLearned = pokemon.moves.find(
       (move) => move.name === newMove.name

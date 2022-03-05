@@ -131,13 +131,11 @@ class UserBattleInvitationsController {
       if (battleInvitation.position_id) {
         const position = await Position.findByPk(battleInvitation.position_id);
 
-        battleMessage = `${capitalize(
-          challenger.username
-        )} desafiou o ${buildPositionString(position)}!`;
+        battleMessage = `${
+          challenger.display_name
+        } desafiou o ${buildPositionString(position)}!`;
       } else {
-        battleMessage = `${capitalize(
-          challenger.username
-        )} desafiou ${capitalize(user.username)} para uma batalha!`;
+        battleMessage = `${challenger.display_name} desafiou ${user.display_name} para uma batalha!`;
       }
 
       triggerAlert({
@@ -146,6 +144,7 @@ class UserBattleInvitationsController {
         message: battleMessage,
         duration: 5000,
         sound_href: alertConstants.pokemonChallengeSoundUrl,
+        user_message: ' ',
       });
 
       return res.json(battleSchedule);

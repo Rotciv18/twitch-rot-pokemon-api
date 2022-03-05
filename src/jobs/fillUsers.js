@@ -8,8 +8,8 @@ export default async () => {
 
   try {
     const response = await axios.post(
-      // 'http://localhost:3333/api/stream_avatars/users',
-      'https://pokerot.com/api/stream_avatars/users',
+      'http://localhost:3333/api/stream_avatars/users',
+      // 'https://pokerot.com/api/stream_avatars/users',
       {
         usersData,
         usersDictionary,

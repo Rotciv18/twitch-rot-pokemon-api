@@ -25,6 +25,11 @@ module.exports = {
         allowNull: false,
         defaultValue: [],
       },
+      past_learned_moves: {
+        type: Sequelize.JSON,
+        allowNull: false,
+        defaultValue: [],
+      },
       created_at: Sequelize.DATE,
       updated_at: Sequelize.DATE,
     });

@@ -4,7 +4,6 @@ import Pokemon from '../../models/Pokemon';
 import Setup from '../../models/Setup';
 import twitchApi from '../../services/twitchApi';
 import { addPoints } from '../../services/StreamElements/Points';
-import { giftPokemon, chatMessage } from '../../services/Twitch/twitchServices';
 
 class StreamAvatarsController {
   async updateUsers(req, res) {
@@ -15,9 +14,13 @@ class StreamAvatarsController {
         const foundUser = await User.findByPk(twitch_id, {
           include: 'pokemons',
         });
-        const userTwitchResponse = await twitchApi.get(
-          `/users?id=${twitch_id}`
-        );
+        let userTwitchResponse;
+        try {
+          userTwitchResponse = await twitchApi.get(`/users?id=${twitch_id}`);
+        } catch (e) {
+          console.log(twitch_id);
+          return;
+        }
 
         if (!userTwitchResponse.data.data[0]) {
           return;
@@ -28,10 +31,6 @@ class StreamAvatarsController {
         // FOR BETA TEST ONLY
         if (!foundUser) {
           addPoints(username, 50000);
-          giftPokemon(username, 'rattata');
-          chatMessage(
-            `Seja bem vindo, ${display_name}! Você acaba de ser registrado no PokeRot!`
-          );
         }
 
         const user =
@@ -46,16 +45,6 @@ class StreamAvatarsController {
         if (!foundUser) {
           const setup = await Setup.create({ user_id: user.id });
           user.update({ setup_id: setup.id, img_url: profile_image_url });
-
-          // Adiciona rattata para o novo usuário
-          const rattata = await PokemonData.findByPk(19);
-          const moves = rattata.moves.filter((move) => move.learnAt === 1);
-          await Pokemon.create({
-            user_id: user.id,
-            pokemon_data_id: 19,
-            name: 'rattata',
-            moves,
-          });
         }
         if (user.username !== username) {
           await user.update({
@@ -85,6 +74,7 @@ class StreamAvatarsController {
                 pokemon_data_id: pokemonData.id,
                 name: pokemon,
                 moves,
+                past_learned_moves: moves,
               });
             }
           });
