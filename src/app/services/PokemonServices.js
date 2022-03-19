@@ -10,9 +10,12 @@ export const willLearnNewMove = async (pokemon, newLevel) => {
       (move) => move.name === newMove.name
     );
 
-    const pastLearned = !pokemon.past_learned_moves.some(
-      (pastLearnedMove) => pastLearnedMove.name !== newMove.name
-    );
+    const pastLearned =
+      pokemon.past_learned_moves.length > 0
+        ? !pokemon.past_learned_moves.some(
+            (pastLearnedMove) => pastLearnedMove.name !== newMove.name
+          )
+        : false;
 
     if (alreadyLearned || pastLearned) {
       return null;
