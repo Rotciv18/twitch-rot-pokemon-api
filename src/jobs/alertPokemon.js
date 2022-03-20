@@ -86,6 +86,7 @@ export default async () => {
     message: 'Um pokemon selvagem apareceu!',
     duration: 4000,
     sound_href: `https://pokemoncries.com/cries-old/${pokemonData.id}.mp3`,
+    user_message: ' ',
   });
 
   if (success) {
@@ -101,14 +102,6 @@ export default async () => {
       const userDisplayName = userstate['display-name'];
       message = message.toLocaleLowerCase();
       const [ballType, pokemonMessage] = message.split(' ');
-      const user = await User.findOne({
-        where: { username },
-        include: 'pokemons',
-      });
-      if (!user) {
-        chatMessage(`${userDisplayName} ainda não está cadastrado.`);
-        return;
-      }
 
       // User typed correctly
       if (
@@ -116,8 +109,20 @@ export default async () => {
         !isInCatch &&
         isBall(ballType)
       ) {
-        await emoteOnlyOn();
         isInCatch = true;
+        await emoteOnlyOn();
+
+        const user = await User.findOne({
+          where: { username },
+          include: 'pokemons',
+        });
+        if (!user) {
+          chatMessage(`${userDisplayName} ainda não está cadastrado.`);
+          await emoteOnlyOff();
+          isInCatch = false;
+          return;
+        }
+
         const roll = Math.floor(Math.random() * 100) + 1;
         const hasPokemon = user.pokemons.find(
           (pokemon) => pokemon.name === pokemonData.name
@@ -141,6 +146,7 @@ export default async () => {
 
           // User catched the pokemon
         } else if (roll <= ballChance(ballType)) {
+          twitchClient.removeListener('message', twitchClient._events.message);
           removeBall(user, ballType);
 
           disconnected = true;
@@ -163,6 +169,7 @@ export default async () => {
             )}`,
             duration: 5000,
             sound_href: alertConstants.pokemonCatchSoundUrl,
+            user_message: ' ',
           });
 
           const moves = pokemonData.moves.filter((move) => move.learnAt === 1);
@@ -171,12 +178,11 @@ export default async () => {
             user_id: user.id,
             pokemon_data_id: pokemonData.id,
             name: pokemonData.name,
+            past_learned_moves: moves,
           });
 
           await giftPokemon(username, pokemonData.name);
           await emoteOnlyOff();
-
-          twitchClient.removeListener('message', twitchClient._events.message);
 
           await alertPokemonQueue.add({}, { delay });
 

@@ -93,7 +93,10 @@ class UserPokemonsController {
       pokemons = pokemons.filter((pokemon) => {
         let canEvolve = false;
         pokemon.pokemon_data.evolutions.forEach((evolution) => {
-          if (evolution.withItem === evolvesWithStone) {
+          if (
+            evolution.withItem === evolvesWithStone ||
+            evolution.trigger === evolvesWithStone
+          ) {
             canEvolve = true;
           }
         });
@@ -126,6 +129,9 @@ class UserPokemonsController {
       return res
         .status(401)
         .json({ message: "Can't level up pokemon that's in position Setup" });
+    }
+    if (pokemon.level === 100) {
+      return res.status(401).json({ message: 'Pokemon already at max level' });
     }
 
     const [canLevelUp, reason] = await canLevelUpOrEvolve(user, pokemon);
@@ -291,6 +297,7 @@ class UserPokemonsController {
         image_href: alertConstants.pokemonEvolveGifUrl,
         sound_href: alertConstants.pokemonEvolvedSoundUrl,
         duration: 3500,
+        user_message: ' ',
       });
 
       // Evolves
@@ -438,7 +445,8 @@ class UserPokemonsController {
     }
 
     const newEvolution = pokemon.pokemon_data.evolutions.find(
-      (evolution) => evolution.withItem === stone.name
+      (evolution) =>
+        evolution.withItem === stone.name || evolution.trigger === stone.name
     );
     const newEvolutionData = await PokemonData.findByPk(newEvolution.id);
 
@@ -561,6 +569,7 @@ class UserPokemonsController {
         image_href: alertConstants.pokemonEvolveGifUrl,
         sound_href: alertConstants.pokemonEvolvedSoundUrl,
         duration: 3500,
+        user_message: ' ',
       });
 
       // Evolves
